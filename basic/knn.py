@@ -72,8 +72,8 @@ def main():
     '''Launch the mains steps'''
     args = arguments_parser()
 
-    # Step 1
-    logging.info("Loading images in progress ...")
+    # Step 1: Gather data and preprocess
+    logging.info("Loading images and preprocessing in progress ...")
     imagepaths = list(paths.list_images(args["dataset"]))
     # initialize the image preprocessor, load the dataset from disk,
     # and reshape the data matrix
@@ -90,7 +90,8 @@ def main():
         "Features matrix: {:.1f}MB".format(data.nbytes / (1024 * 1000.0))
     )
 
-    # Step 2
+    # Step 2: Split data
+    logging.info("Splitting data in progress ...")
     # encode the labels as integers
     le = LabelEncoder()
     labels = le.fit_transform(labels)
@@ -99,6 +100,14 @@ def main():
     (trainX, testX, trainY, testY) = train_test_split(
         data, labels, test_size=0.10, random_state=42
     )
+
+    # Step 3: kNN training
+    logging.info("Training k-NN classifier in progress ...")
+    # train and evaluate a k-NN classifier on the raw pixel intensities
+    model = KNeighborsClassifier(
+        n_neighbors=args["neighbors"], n_jobs=args["jobs"]
+    )
+    model.fit(trainX, trainY)
 
 
 
