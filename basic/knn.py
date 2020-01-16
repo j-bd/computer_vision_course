@@ -109,7 +109,13 @@ def main():
     )
     model.fit(trainX, trainY)
 
-
+    # Step 4: Evaluate
+    logging.info("k-NN classifier evaluation in progress ...")
+    print(
+        classification_report(
+            testY, model.predict(testX),target_names=le.classes_
+        )
+    )
 
 
 if __name__ == "__main__":
