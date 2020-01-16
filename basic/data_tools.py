@@ -15,6 +15,7 @@ import cv2
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
 class SimplePreprocessor:
+    '''Preprocess images'''
     def __init__(self, width, height, inter=cv2.INTER_AREA):
         '''Store the target image width, height, and interpolation
         Method used when resizing'''
@@ -36,7 +37,7 @@ class SimpleDatasetLoader:
         '''Store the image preprocessor'''
         self.preprocessors = preprocessors
 
-        if self.preprocessors == None:
+        if self.preprocessors is None:
             # We declare as a list because sometimes we want to take a sequence
             # of preproceesing actions : resize, scalling, converting. Thus, we
             # have independently implementation
@@ -57,8 +58,8 @@ class SimpleDatasetLoader:
             # check to see if our preprocessors are not None
             if self.preprocessors is not None:
                 # loop over the preprocessors and apply each to the image
-                for p in self.preprocessors:
-                    image = p.preprocess(image)
+                for preprocessor in self.preprocessors:
+                    image = preprocessor.preprocess(image)
             # treat our processed image as a "feature vector"
             # by updating the data list followed by the labels
             # !! assumes that all images in the dataset can fit into main memory
@@ -68,7 +69,7 @@ class SimpleDatasetLoader:
             # show an update every ‘verbose‘ images
             if verbose > 0 and i > 0 and (i + 1) % verbose == 0:
                 print("i")
-                logging.info("processed {}/{}".format(i + 1,len(imagepaths)))
+                logging.info("processed {}/{}".format(i + 1, len(imagepaths)))
 
         # return a tuple of the data and labels
         return (np.array(data), np.array(labels))

@@ -93,8 +93,8 @@ def main():
     # Step 2: Split data
     logging.info("Splitting data in progress ...")
     # encode the labels as integers
-    le = LabelEncoder()
-    labels = le.fit_transform(labels)
+    lab_enc = LabelEncoder()
+    labels = lab_enc.fit_transform(labels)
     # partition the data into training and testing splits using 90% of
     # the data for training and the remaining 10% for testing
     (trainX, testX, trainY, testY) = train_test_split(
@@ -103,7 +103,10 @@ def main():
 
     # Step 3: kNN training
     logging.info("Training k-NN classifier in progress ...")
-    # train and evaluate a k-NN classifier on the raw pixel intensities
+    # train a k-NN classifier on the raw pixel intensities
+    # the k-NN model is simply storing the trainX and trainY data internally so
+    # it can create predictions on the testing set by computing the distance
+    # between the input data and the trainX data
     model = KNeighborsClassifier(
         n_neighbors=args["neighbors"], n_jobs=args["jobs"]
     )
@@ -113,12 +116,10 @@ def main():
     logging.info("k-NN classifier evaluation in progress ...")
     print(
         classification_report(
-            testY, model.predict(testX),target_names=le.classes_
+            testY, model.predict(testX), target_names=lab_enc.classes_
         )
     )
 
 
 if __name__ == "__main__":
     main()
-
-
