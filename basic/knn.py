@@ -15,6 +15,7 @@ We use 4 steps pipeline:
     Step #4 – Evaluate
 """
 import argparse
+import logging
 
 from imutils import paths
 from sklearn.preprocessing import LabelEncoder
@@ -23,6 +24,9 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import classification_report
 
 from data_tools import SimplePreprocessor, SimpleDatasetLoader
+
+logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
+
 
 def arguments_parser():
     '''Get the informations from the operator'''
@@ -68,5 +72,38 @@ def main():
     '''Launch the mains steps'''
     args = arguments_parser()
 
+    # Step 1
+    logging.info("Loading images in progress ...")
+    imagepaths = list(paths.list_images(args["dataset"]))
+    # initialize the image preprocessor, load the dataset from disk,
+    # and reshape the data matrix
+    sp = SimplePreprocessor(32, 32)
+    sdl = SimpleDatasetLoader(preprocessors=[sp])
+    (data, labels) = sdl.load(imagepaths, verbose=500)
+    logging.info(f'''data shape {data.shape}, labels shape {labels.shape}''')
+    # in order to apply the k-NN algorithm, we need to “flatten” our images from
+    # a 3D representation to a single list of pixel intensities
+    # the flattening is 32 × 32 × 3 = 3072
+    data = data.reshape((data.shape[0], 3072))
+    # show some information on memory consumption of the images
+    logging.info(
+        "Features matrix: {:.1f}MB".format(data.nbytes / (1024 * 1000.0))
+    )
+
+    # Step 2
+    # encode the labels as integers
+    le = LabelEncoder()
+    labels = le.fit_transform(labels)
+    # partition the data into training and testing splits using 90% of
+    # the data for training and the remaining 10% for testing
+    (trainX, testX, trainY, testY) = train_test_split(
+        data, labels, test_size=0.10, random_state=42
+    )
+
+
+
+
 if __name__ == "__main__":
     main()
+
+

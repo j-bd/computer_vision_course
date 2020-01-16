@@ -42,7 +42,7 @@ class SimpleDatasetLoader:
             # have independently implementation
             self.preprocessors = list()
 
-    def load(self, imagepaths, verbose=1):
+    def load(self, imagepaths, verbose=-1):
         '''images and labels loading'''
         # Initialize the list of features/images and labels
         data = list()
@@ -67,6 +67,7 @@ class SimpleDatasetLoader:
             labels.append(label)
             # show an update every ‘verbose‘ images
             if verbose > 0 and i > 0 and (i + 1) % verbose == 0:
+                print("i")
                 logging.info("processed {}/{}".format(i + 1,len(imagepaths)))
 
         # return a tuple of the data and labels
