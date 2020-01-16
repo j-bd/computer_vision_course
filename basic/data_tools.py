@@ -57,12 +57,14 @@ class SimpleDatasetLoader:
                     image = p.preprocess(image)
             # treat our processed image as a "feature vector"
             # by updating the data list followed by the labels
+            # !! assumes that all images in the dataset can fit into main memory
+            # !! at once
             data.append(image)
             labels.append(label)
-            # show an update every ‘verbose‘ images
-            if verbose > 0 and i > 0 and (i + 1) % verbose == 0:
-                print("[INFO] processed {}/{}".format(i + 1,
-                len(imagepaths)))
+#            # show an update every ‘verbose‘ images
+#            if verbose > 0 and i > 0 and (i + 1) % verbose == 0:
+#                print("[INFO] processed {}/{}".format(i + 1,
+#                len(imagepaths)))
 
         # return a tuple of the data and labels
         return (np.array(data), np.array(labels))
