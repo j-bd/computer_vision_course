@@ -24,4 +24,27 @@ from sklearn.metrics import classification_report
 
 from data_tools import SimplePreprocessor, SimpleDatasetLoader
 
+def arguments_parser():
+    '''Get the informations from the operator'''
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "-d", "--dataset", required=True, help="path to input dataset"
+    )
+    parser.add_argument(
+        "-k", "--neighbors", type=int, default=1,
+        help="# of nearest neighbors for classification"
+    )
+    parser.add_argument(
+        "-j", "--jobs", type=int, default=-1,
+        help="# of jobs for k-NN distance (-1 uses all available cores)"
+    )
+    args = vars(parser.parse_args())
+    return args
 
+
+def main():
+    '''Launch the mains steps'''
+    args = arguments_parser()
+
+if __name__ == "__main__":
+    main()
