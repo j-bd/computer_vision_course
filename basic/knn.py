@@ -26,7 +26,29 @@ from data_tools import SimplePreprocessor, SimpleDatasetLoader
 
 def arguments_parser():
     '''Get the informations from the operator'''
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+
+        prog='k-NN classifier',
+        usage='''
+        %(prog)s [on the raw pixel intensities of the food dataset
+         and use it to classify unknown food image]
+        ''',
+        formatter_class=argparse.RawDescriptionHelpFormatter, description='''
+        To lauch custom training execution:
+        -------------------------------------
+        python3 main.py --dataset path/to/dataset/folder --neighbors int
+        --jobs int
+
+        The following argument is mandatory:
+        --dataset: The path to where our input image dataset resides on disk
+        The following arguments are optionnals:
+        --neighbors: the number of neighbors k to apply when using the
+        k-NN algorithm.
+        --jobs: the number of concurrent jobs to run when computing
+        the distance between an input data point and the training set. A value
+        of -1 will use all available cores on the processor.
+        '''
+    )
     parser.add_argument(
         "-d", "--dataset", required=True, help="path to input dataset"
     )
