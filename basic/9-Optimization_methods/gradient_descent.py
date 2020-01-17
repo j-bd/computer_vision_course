@@ -19,12 +19,26 @@ from sklearn.datasets import make_blobs
 
 def arguments_parser():
     '''Get the informations from the operator'''
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "-e", "--epochs", type=float, default=100, help="# of epochs"
+    parser = argparse.ArgumentParser(
+        prog="Gradient descent",
+        usage='''%(prog)s [for steps understanding]''',
+        formatter_class=argparse.RawDescriptionHelpFormatter, description='''
+        To lauch custom training execution:
+        -------------------------------------
+        python3 main.py --epochs float --alpha float
+
+        All arguments are mandatory.
+        '''
     )
     parser.add_argument(
-        "-a", "--alpha", type=float, default=0.01, help="learning rate"
+        "-e", "--epochs", type=float, default=100, help="# of epochs that "\
+        "we’ll use when training our classifier using gradient descent."
+    )
+    parser.add_argument(
+        "-a", "--alpha", type=float, default=0.01, help="learning rate for the"\
+        " gradient descent. We typically see 0.1, 0.01, and 0.001 as initial"\
+        " learning rate values, but again, this is a hyperparameter you’ll need"\
+        " to tune for your own classification problems"
     )
     args = vars(parser.parse_args())
     return args
