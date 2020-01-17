@@ -85,6 +85,25 @@ def data_generator():
     )
     return (trainX, testX, trainY, testY)
 
+def plot(x_val, y_val, args, losses):
+    '''Display data'''
+    # plot the (testing) classification data
+    plt.style.use("ggplot")
+    plt.figure()
+    plt.title("Data")
+    plt.scatter(
+        x_val[:, 0], x_val[:, 1], c=np.random.rand(len(y_val)), marker="o", s=30
+    )
+
+    # construct a figure that plots the loss over time
+    plt.style.use("ggplot")
+    plt.figure()
+    plt.plot(np.arange(0, args["epochs"]), losses)
+    plt.title("Training Loss")
+    plt.xlabel("Epoch #")
+    plt.ylabel("Loss")
+    plt.show()
+
 def main():
     '''Launch the mains steps'''
     args = arguments_parser()
@@ -125,6 +144,13 @@ def main():
         # check to see if an update should be displayed
         if epoch == 0 or (epoch + 1) % 5 == 0:
             logging.info(" epoch={}, loss={:.7f}".format(int(epoch + 1), loss))
+
+    # evaluate our model
+    logging.info("4. Evaluating ...")
+    preds = predict(testX, W)
+    print(classification_report(testY, preds))
+
+    plot(testX, testY, args, losses)
 
 
 if __name__ == "__main__":
