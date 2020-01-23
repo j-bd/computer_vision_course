@@ -29,7 +29,7 @@ class Perceptron:
         return 1 if x > 0 else 0
 
     def fit(self, xs, y, epochs=10):
-        '''fit the model to the data'''
+        '''Fit the model to the data'''
         # 'x' as input, 'y' as target output class labels
         # insert a column of 1’s as the last entry in the feature
         # matrix -- this little trick allows us to treat the bias
@@ -54,3 +54,18 @@ class Perceptron:
                     # update the weight matrix
                     self.weight += -self.alpha * error * x
 
+    def predict(self, xs, addBias=True):
+        '''Predict the class labels for a given set of input data'''
+        # ensure our input is a matrix
+        xs = np.atleast_2d(xs)
+
+        # check to see if the bias column should be added
+        if addBias:
+            # insert a column of 1’s as the last entry in the feature
+            # matrix (bias)
+            xs = np.c_[xs, np.ones((xs.shape[0]))]
+
+        # take the dot product between the input features and the
+        # weight matrix, then pass the value through the step
+        # function
+        return self.step(np.dot(xs, self.weight))
