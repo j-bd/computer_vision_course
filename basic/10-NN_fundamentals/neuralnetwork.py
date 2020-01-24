@@ -127,7 +127,7 @@ class NeuralNetwork:
         # return the loss
         return loss
 
-    def fit(self, XS, YS, epochs=1000, displayUpdate=100):
+    def fit(self, XS, YS, epochs=1000, display_update=100):
         '''Train the NN'''
         # insert a column of 1’s as the last entry in the feature matrix -- this
         # little trick allows us to treat the bias as a trainable parameter
@@ -141,7 +141,7 @@ class NeuralNetwork:
                 self.fit_partial(x, target)
 
             # check to see if we should display a training update
-            if epoch == 0 or (epoch + 1) % displayUpdate == 0:
+            if epoch == 0 or (epoch + 1) % display_update == 0:
                 loss = self.calculate_loss(XS, YS)
                 logging.info(" Epoch={}, loss={:.7f}".format(epoch + 1, loss))
 

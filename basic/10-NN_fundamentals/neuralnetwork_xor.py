@@ -22,17 +22,17 @@ XS = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
 YS = np.array([[0], [1], [1], [0]])
 
 # define our 2-2-1 neural network and train it
-nn = NeuralNetwork([2, 2, 1], alpha=0.5)
-logging.info(f" Neural Network shape: {nn}")
+neural_net = NeuralNetwork([2, 2, 1], alpha=0.5)
+logging.info(f" Neural Network shape: {neural_net}")
 
 logging.info(" Training Neural Network...")
-nn.fit(XS, YS, epochs=20000)
+neural_net.fit(XS, YS, epochs=20000)
 
 # now that our network is trained, loop over the XOR data points
 for (x, target) in zip(XS, YS):
     # make a prediction on the data point and display the result
     # to our console
-    pred = nn.predict(x)[0][0]
+    pred = neural_net.predict(x)[0][0]
     step = 1 if pred > 0.5 else 0
     logging.info(
         " Data={}, ground-truth={}, pred={:.4f}, step={}".format(
