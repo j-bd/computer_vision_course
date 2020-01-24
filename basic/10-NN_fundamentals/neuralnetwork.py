@@ -23,7 +23,7 @@ class NeuralNetwork:
         that our first input layer has two nodes, our hidden layer has two
         nodes, and our final output layer has one node
         alpha: The learning rate of our neural network'''
-        self.weights = list()
+        self.weights = []
         self.layers = layers
         self.alpha = alpha
 
@@ -164,7 +164,7 @@ class NeuralNetwork:
             # product between the current activation value ‘p‘ and the weight
             # matrix associated with the current layer, then passing this value
             # through a nonlinear activation function
-            prediction = self.sigmoid(np.dot(data, self.weights[layer]))
+            data = self.sigmoid(np.dot(data, self.weights[layer]))
 
         # return the predicted value
-        return prediction
+        return data
