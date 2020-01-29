@@ -34,6 +34,7 @@ def arguments_parser():
         To lauch custom training execution:
         -------------------------------------
         python3 shallownet_vegetable.py --dataset path/to/folder/containing_image
+        --output path/to/folder/file.png
 
         All arguments are mandatory.
         '''
@@ -41,6 +42,7 @@ def arguments_parser():
     parser.add_argument(
         "-d", "--dataset", required=True, help="path to input dataset"
     )
+    parser.add_argument( "-o", "--output", required=True, help="path to output")
     args = vars(parser.parse_args())
     return args
 
@@ -60,6 +62,32 @@ def preprocessing(args):
     (data, labels) = dataset_loader.load(image_paths, verbose=50)
     data = data.astype("float") / 255.0
     return data, labels
+
+def display_learning_evol(fit_dic, save_path):
+    '''Plot the training loss and accuracy'''
+    plt.style.use("ggplot")
+    plt.figure()
+    plt.plot(
+        np.arange(0, len(fit_dic.history["loss"])), fit_dic.history["loss"],
+        label="train_loss"
+    )
+    plt.plot(
+        np.arange(0, len(fit_dic.history["val_loss"])),
+        fit_dic.history["val_loss"], label="val_loss"
+    )
+    plt.plot(
+        np.arange(0, len(fit_dic.history["accuracy"])),
+        fit_dic.history["accuracy"], label="train_acc"
+    )
+    plt.plot(
+        np.arange(0, len(fit_dic.history["val_accuracy"])),
+        fit_dic.history["val_accuracy"], label="val_accuracy"
+    )
+    plt.title("Training Loss and Accuracy")
+    plt.xlabel("Epoch #")
+    plt.ylabel("Loss/Accuracy")
+    plt.legend()
+    plt.savefig(save_path)
 
 def main():
     '''Launch main process'''
@@ -101,6 +129,8 @@ def main():
             target_names=["fries", "beans", "potatoes"]
         )
     )
+
+    display_learning_evol(history, args["output"])
 
 
 if __name__ == "__main__":
