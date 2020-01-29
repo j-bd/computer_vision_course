@@ -29,8 +29,7 @@ class ShallowNet:
             input_shape = (depth, height, width)
 
         # define the first (and only) CONV => RELU layer
-        model.add(Conv2D(32, (3, 3), padding="same",
-        input_shape=input_shape))
+        model.add(Conv2D(32, (3, 3), padding="same", input_shape=input_shape))
         model.add(Activation("relu"))
 
         # softmax classifier
