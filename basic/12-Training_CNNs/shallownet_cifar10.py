@@ -98,7 +98,7 @@ def main():
     print("[INFO] training network...")
     history = model.fit(
         train_x, train_y, validation_data=(test_x, test_y), batch_size=32,
-        epochs=4, verbose=1
+        epochs=40, verbose=1
     )
 
     # evaluate the network
