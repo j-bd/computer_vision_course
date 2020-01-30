@@ -39,7 +39,7 @@ def arguments_parser():
     parser.add_argument(
         "-d", "--dataset", required=True, help="path to input dataset"
     )
-    parser.add_argument( "-o", "--output", required=True, help="path to output")
+    parser.add_argument("-o", "--output", required=True, help="path to output")
     args = vars(parser.parse_args())
     return args
 
