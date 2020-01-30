@@ -36,6 +36,5 @@ class ShallowNet:
         model.add(Flatten())
         model.add(Dense(classes))
         model.add(Activation("softmax"))
-        model.summary()
         # return the constructed network architecture
         return model
