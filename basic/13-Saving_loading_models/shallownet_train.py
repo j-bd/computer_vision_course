@@ -113,6 +113,7 @@ def main():
     model.compile(
         loss="categorical_crossentropy", optimizer=opt, metrics=["accuracy"]
     )
+    model.summary()
 
     # Train the network
     print(" Training network...")
