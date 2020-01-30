@@ -12,7 +12,7 @@ import numpy as np
 import cv2
 
 
-logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
+#logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
 class SimplePreprocessor:
     '''Preprocess images'''
