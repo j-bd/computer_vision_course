@@ -7,7 +7,6 @@ Created on Wed Jan 29 16:37:49 2020
 """
 
 import argparse
-import logging
 
 from imutils import paths
 import matplotlib.pyplot as plt
@@ -21,8 +20,6 @@ from imagetoarraypreprocessor import ImageToArrayPreprocessor
 from data_tools import SimplePreprocessor
 from data_tools import SimpleDatasetLoader
 from shallownet import ShallowNet
-
-logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
 
 def arguments_parser():
@@ -49,7 +46,6 @@ def arguments_parser():
 def preprocessing(args):
     '''Prepare data and labels under numpy format'''
     # grab the list of images that we’ll be describing
-    logging.info(" Loading images...")
     image_paths = list(paths.list_images(args["dataset"]))
 
     # initialize the image preprocessors
@@ -92,11 +88,12 @@ def display_learning_evol(fit_dic, save_path):
 def main():
     '''Launch main process'''
     args = arguments_parser()
+    print(" Loading and preprocessing images...")
     data, labels = preprocessing(args)
 
     # partition the data into training and testing splits using 75% of the data
     # for training and the remaining 25% for testing
-    logging.info(" Splitting data...")
+    print(" Splitting data...")
     (train_x, test_x, train_y, test_y) = train_test_split(
         data, labels, test_size=0.25, random_state=42
     )
@@ -105,7 +102,7 @@ def main():
     test_y = LabelBinarizer().fit_transform(test_y)
 
     # initialize the optimizer and model
-    logging.info(" Compiling model...")
+    print(" Compiling model...")
     opt = SGD(lr=0.005)
     model = ShallowNet.build(width=32, height=32, depth=3, classes=3)
     model.compile(
@@ -113,15 +110,14 @@ def main():
     )
 
     # train the network
-    logging.info(" Training network...")
+    print(" Training network...")
     history = model.fit(
         train_x, train_y, validation_data=(test_x, test_y), batch_size=32,
         epochs=100, verbose=1
     )
 
     # evaluate the network
-    logging.info(" Evaluating network...")
-    print("[INFO] evaluating network...")
+    print(" Evaluating network...")
     predictions = model.predict(test_x, batch_size=32)
     print(
         classification_report(
