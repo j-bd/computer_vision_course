@@ -86,8 +86,10 @@ def main():
         # Load the example image, draw the prediction, and display it to our
         # screen
         image = cv2.imread(image_path)
-        cv2.putText(image, "Label: {}".format(class_labels[predictions[i]]),
-        (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+        cv2.putText(
+            image, "Label: {}".format(class_labels[predictions[i]]), (10, 30),
+            cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2
+        )
         cv2.imshow("Image", image)
         cv2.waitKey(10000)
 
