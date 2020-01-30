@@ -43,12 +43,14 @@ def data_loader():
     test_x = test_x.astype("float") / 255.0
 
     # convert the labels from integers to vectors
-    lb = LabelBinarizer()
-    train_y = lb.fit_transform(train_y)
-    test_y = lb.transform(test_y)
+    lab_bin = LabelBinarizer()
+    train_y = lab_bin.fit_transform(train_y)
+    test_y = lab_bin.transform(test_y)
     # initialize the label names for the CIFAR-10 dataset
-    label_names = ["airplane", "automobile", "bird", "cat", "deer",
-    "dog", "frog", "horse", "ship", "truck"]
+    label_names = [
+        "airplane", "automobile", "bird", "cat", "deer", "dog", "frog", "horse",
+        "ship", "truck"
+    ]
 
     return train_x, train_y, test_x, test_y, label_names
 
@@ -96,7 +98,7 @@ def main():
     print("[INFO] training network...")
     history = model.fit(
         train_x, train_y, validation_data=(test_x, test_y), batch_size=32,
-        epochs=40, verbose=1
+        epochs=4, verbose=1
     )
 
     # evaluate the network
