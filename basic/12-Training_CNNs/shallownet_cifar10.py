@@ -33,6 +33,31 @@ def data_loader():
 
     return train_x, train_y, test_x, test_y, label_names
 
+def display_learning_evol(fit_dic, save_path):
+    '''Plot the training loss and accuracy'''
+    plt.style.use("ggplot")
+    plt.figure()
+    plt.plot(
+        np.arange(0, len(fit_dic.history["loss"])), fit_dic.history["loss"],
+        label="train_loss"
+    )
+    plt.plot(
+        np.arange(0, len(fit_dic.history["val_loss"])),
+        fit_dic.history["val_loss"], label="val_loss"
+    )
+    plt.plot(
+        np.arange(0, len(fit_dic.history["accuracy"])),
+        fit_dic.history["accuracy"], label="train_acc"
+    )
+    plt.plot(
+        np.arange(0, len(fit_dic.history["val_accuracy"])),
+        fit_dic.history["val_accuracy"], label="val_accuracy"
+    )
+    plt.title("Training Loss and Accuracy")
+    plt.xlabel("Epoch #")
+    plt.ylabel("Loss/Accuracy")
+    plt.legend()
+    plt.savefig(save_path)
 
 def main():
     '''Launch main process'''
@@ -62,6 +87,8 @@ def main():
             target_names=label_names
         )
     )
+
+    display_learning_evol(history, arg["output"])
 
 
 if __name__ == "__main__":
