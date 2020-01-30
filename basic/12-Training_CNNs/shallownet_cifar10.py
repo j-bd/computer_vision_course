@@ -6,6 +6,8 @@ Created on Thu Jan 30 08:56:56 2020
 @author: j-bd
 """
 
+import argparse
+
 import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.preprocessing import LabelBinarizer
@@ -15,6 +17,23 @@ from keras.datasets import cifar10
 
 from shallownet import ShallowNet
 
+
+def arguments_parser():
+    '''Retrieve user data command'''
+    parser = argparse.ArgumentParser(
+        prog="Cifar 10 Classification",
+        usage='''%(prog)s [Application of ShallowNet CNNs structure]''',
+        formatter_class=argparse.RawDescriptionHelpFormatter, description='''
+        To lauch custom training execution:
+        -------------------------------------
+        python3 shallownet_cifar10.py --output path/to/folder/file.png
+
+        All arguments are mandatory.
+        '''
+    )
+    parser.add_argument("-o", "--output", required=True, help="path to output")
+    args = vars(parser.parse_args())
+    return args
 
 def data_loader():
     '''Load the training and testing data, then scale it into the range [0, 1]'''
@@ -61,6 +80,8 @@ def display_learning_evol(fit_dic, save_path):
 
 def main():
     '''Launch main process'''
+    args = arguments_parser()
+
     train_x, train_y, test_x, test_y, label_names = data_loader()
 
     # initialize the optimizer and model
@@ -88,7 +109,7 @@ def main():
         )
     )
 
-    display_learning_evol(history, arg["output"])
+    display_learning_evol(history, args["output"])
 
 
 if __name__ == "__main__":
