@@ -72,7 +72,7 @@ def data_preparation(dataset, labels):
     train_y = label_bin.fit_transform(train_y)
     test_y = label_bin.transform(test_y)
 
-    return train_x, test_x, train_y, test_y
+    return train_x, test_x, train_y, test_y, label_bin
 
 def training_lenet(train_x, test_x, train_y, test_y, saving_path):
     '''Launch the lenet training'''
@@ -94,9 +94,8 @@ def training_lenet(train_x, test_x, train_y, test_y, saving_path):
 
     return history, model
 
-def model_evaluation(model, test_x, test_y):
+def model_evaluation(model, test_x, test_y, label_bin):
     '''Display on terminal command the quality of model's predictions'''
-    label_bin = LabelBinarizer()
     print("[INFO] Evaluating network...")
     predictions = model.predict(test_x, batch_size=128)
     print(
@@ -138,13 +137,17 @@ def main():
 
     input_data, labels = data_loader()
 
-    train_x, test_x, train_y, test_y = data_preparation(input_data, labels)
+    train_x, test_x, train_y, test_y, label_bin = data_preparation(
+        input_data, labels
+    )
 
-    history, model = training_lenet(train_x, test_x, train_y, test_y, args["model"])
-
-    model_evaluation(model, test_x, test_y)
+    history, model = training_lenet(
+        train_x, test_x, train_y, test_y, args["model"]
+    )
 
     display_learning_evol(history, args["output"])
+
+    model_evaluation(model, test_x, test_y, label_bin)
 
 
 if __name__ == "__main__":
