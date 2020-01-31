@@ -51,11 +51,31 @@ def data_preparation(dataset, labels):
 
     return train_x, test_x, train_y, test_y
 
+def training_lenet(train_x, test_x, train_y, test_y):
+    '''Launch the lenet training'''
+    # Initialize the optimizer and model
+    print("[INFO] Compiling model...")
+    opt = SGD(lr=0.01)
+    model = LeNet.build(width=28, height=28, depth=1, classes=10)
+    model.compile(
+        loss="categorical_crossentropy", optimizer=opt, metrics=["accuracy"]
+    )
+    # Train the network
+    print("[INFO] Training network...")
+    history = model.fit(
+        train_x, train_y, validation_data=(test_x, test_y), batch_size=128,
+        epochs=20, verbose=1
+    )
+
+    return history
+
 def main():
     '''Launch main process'''
     input_data, labels = data_loader()
 
     train_x, test_x, train_y, test_y = data_preparation(input_data, labels)
+
+    training_lenet(train_x, test_x, train_y, test_y)
 
 
 if __name__ == "__main__":
