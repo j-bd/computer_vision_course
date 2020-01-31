@@ -67,9 +67,9 @@ def data_preparation(dataset, labels):
         input_data, labels, test_size=0.25, random_state=42
     )
     # Convert the labels from integers to vectors
-    le = LabelBinarizer()
-    train_y = le.fit_transform(train_y)
-    test_y = le.transform(test_y)
+    label_bin = LabelBinarizer()
+    train_y = label_bin.fit_transform(train_y)
+    test_y = label_bin.transform(test_y)
 
     return train_x, test_x, train_y, test_y
 
@@ -91,7 +91,21 @@ def training_lenet(train_x, test_x, train_y, test_y, path):
     )
     model.save(path)
 
-    return history
+    return history, model
+
+def model_evaluation(model, test_x, test_y):
+    '''Display on terminal command the quality of model's predictions'''
+    label_bin = LabelBinarizer()
+    print("[INFO] Evaluating network...")
+    predictions = model.predict(test_x, batch_size=128)
+    print(
+        classification_report(
+            test_y.argmax(axis=1), predictions.argmax(axis=1),
+            target_names=[str(x) for x in label_bin.classes_]
+        )
+    )
+
+
 
 def main():
     '''Launch main process'''
@@ -101,7 +115,11 @@ def main():
 
     train_x, test_x, train_y, test_y = data_preparation(input_data, labels)
 
-    training_lenet(train_x, test_x, train_y, test_y, args["model"])
+    history, model = training_lenet(train_x, test_x, train_y, test_y, args["model"])
+
+    model_evaluation(model, test_x, test_y)
+
+    display_learning_evol(history, args["output"])
 
 
 if __name__ == "__main__":
