@@ -5,6 +5,9 @@ Created on Fri Jan 31 11:09:02 2020
 
 @author: j-bd
 """
+
+import argparse
+
 import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.preprocessing import LabelBinarizer
@@ -16,6 +19,25 @@ from keras import backend as K
 
 from lenet import LeNet
 
+
+def arguments_parser():
+    '''Retrieve user data command'''
+    parser = argparse.ArgumentParser(
+        prog="LeNet CNNs Application",
+        usage='''%(prog)s [on MNIST dataset]''',
+        formatter_class=argparse.RawDescriptionHelpFormatter, description='''
+        To lauch custom training execution:
+        -------------------------------------
+        python3 lenet_mnist.py --model path/to/folder/weights.hdf5
+
+        All arguments are mandatory.
+        '''
+    )
+    parser.add_argument(
+        "-m", "--model", required=True, help="path to save model"
+    )
+    args = vars(parser.parse_args())
+    return args
 
 def data_loader():
     '''Get MNIST data and return images with their labels'''
@@ -51,7 +73,7 @@ def data_preparation(dataset, labels):
 
     return train_x, test_x, train_y, test_y
 
-def training_lenet(train_x, test_x, train_y, test_y):
+def training_lenet(train_x, test_x, train_y, test_y, path):
     '''Launch the lenet training'''
     # Initialize the optimizer and model
     print("[INFO] Compiling model...")
@@ -60,22 +82,26 @@ def training_lenet(train_x, test_x, train_y, test_y):
     model.compile(
         loss="categorical_crossentropy", optimizer=opt, metrics=["accuracy"]
     )
+    model.summary()
     # Train the network
     print("[INFO] Training network...")
     history = model.fit(
         train_x, train_y, validation_data=(test_x, test_y), batch_size=128,
         epochs=20, verbose=1
     )
+    model.save(path)
 
     return history
 
 def main():
     '''Launch main process'''
+    args = arguments_parser()
+
     input_data, labels = data_loader()
 
     train_x, test_x, train_y, test_y = data_preparation(input_data, labels)
 
-    training_lenet(train_x, test_x, train_y, test_y)
+    training_lenet(train_x, test_x, train_y, test_y, args["model"])
 
 
 if __name__ == "__main__":
