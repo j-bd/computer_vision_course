@@ -29,13 +29,14 @@ def arguments_parser():
         To lauch custom training execution:
         -------------------------------------
         python3 lenet_mnist.py --model path/to/folder/weights.hdf5
-
+        --output path/to/folder/file.png
         All arguments are mandatory.
         '''
     )
     parser.add_argument(
         "-m", "--model", required=True, help="path to save model"
     )
+    parser.add_argument("-o", "--output", required=True, help="path to output")
     args = vars(parser.parse_args())
     return args
 
@@ -73,7 +74,7 @@ def data_preparation(dataset, labels):
 
     return train_x, test_x, train_y, test_y
 
-def training_lenet(train_x, test_x, train_y, test_y, path):
+def training_lenet(train_x, test_x, train_y, test_y, saving_path):
     '''Launch the lenet training'''
     # Initialize the optimizer and model
     print("[INFO] Compiling model...")
@@ -89,7 +90,7 @@ def training_lenet(train_x, test_x, train_y, test_y, path):
         train_x, train_y, validation_data=(test_x, test_y), batch_size=128,
         epochs=20, verbose=1
     )
-    model.save(path)
+    model.save(saving_path)
 
     return history, model
 
@@ -105,7 +106,31 @@ def model_evaluation(model, test_x, test_y):
         )
     )
 
-
+def display_learning_evol(history_dic, saving_path):
+    '''Plot the training loss and accuracy'''
+    plt.style.use("ggplot")
+    plt.figure()
+    plt.plot(
+        np.arange(0, len(history_dic.history["loss"])),
+        history_dic.history["loss"], label="train_loss"
+    )
+    plt.plot(
+        np.arange(0, len(history_dic.history["val_loss"])),
+        history_dic.history["val_loss"], label="val_loss"
+    )
+    plt.plot(
+        np.arange(0, len(history_dic.history["accuracy"])),
+        history_dic.history["accuracy"], label="train_acc"
+    )
+    plt.plot(
+        np.arange(0, len(history_dic.history["val_accuracy"])),
+        history_dic.history["val_accuracy"], label="val_accuracy"
+    )
+    plt.title("Training Loss and Accuracy")
+    plt.xlabel("Epoch #")
+    plt.ylabel("Loss/Accuracy")
+    plt.legend()
+    plt.savefig(saving_path)
 
 def main():
     '''Launch main process'''
