@@ -43,7 +43,7 @@ def arguments_parser():
 
 def data_loader():
     '''Get Cifar10 data'''
-    print("[INFO] loading CIFAR-10 data...")
+    print("[INFO] Loading CIFAR-10 data...")
     (train_x, train_y), (test_x, test_y) = cifar10.load_data()
     return train_x, test_x, train_y, test_y
 
@@ -65,6 +65,27 @@ def data_preparation(train_x, test_x, train_y, test_y):
 
     return train_x, test_x, train_y, test_y, label_names
 
+def training_minivggnet(train_x, test_x, train_y, test_y, saving_path):
+    '''Launch the lenet training'''
+    # Initialize the optimizer and model
+    print("[INFO] Compiling model...")
+    opt = SGD(lr=0.01, decay=0.01 / 40, momentum=0.9, nesterov=True)
+    model = MiniVGGNet.build(width=32, height=32, depth=3, classes=10)
+    model.compile(
+        loss="categorical_crossentropy", optimizer=opt, metrics=["accuracy"]
+    )
+    model.summary()
+
+    # train the network
+    print("[INFO] Training network...")
+    history = model.fit(
+        train_x, train_y, validation_data=(test_x, test_y), batch_size=64,
+        epochs=40, verbose=1
+    )
+    model.save(saving_path)
+
+    return history, model
+
 def main():
     '''Launch main process'''
     args = arguments_parser()
@@ -74,6 +95,12 @@ def main():
     train_x, test_x, train_y, test_y, label_names = data_preparation(
         train_x, test_x, train_y, test_y
     )
+
+    history, model = training_minivggnet(
+        train_x, test_x, train_y, test_y, args["model"]
+    )
+
+
 
 
 if __name__ == "__main__":
