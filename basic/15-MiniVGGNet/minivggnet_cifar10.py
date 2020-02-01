@@ -17,9 +17,6 @@ from keras.datasets import cifar10
 
 from minivggnet import MiniVGGNet
 
-#matplotlib.use("Agg")
-#plt.switch_backend('Agg')
-
 
 def arguments_parser():
     '''Retrieve user data command'''
