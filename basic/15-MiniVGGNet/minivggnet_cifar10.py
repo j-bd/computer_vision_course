@@ -41,9 +41,17 @@ def arguments_parser():
     args = vars(parser.parse_args())
     return args
 
+def data_loader():
+    '''Get Cifar10 data'''
+    print("[INFO] loading CIFAR-10 data...")
+    (train_x, train_y), (test_x, test_y) = cifar10.load_data()
+    return train_x, test_x, train_y, test_y
+
 def main():
     '''Launch main process'''
     args = arguments_parser()
+
+    train_x, test_x, train_y, test_y = data_loader()
 
 
 if __name__ == "__main__":
