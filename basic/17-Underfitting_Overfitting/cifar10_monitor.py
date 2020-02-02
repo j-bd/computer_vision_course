@@ -118,7 +118,7 @@ def main():
     )
 
     history, model = training_minivggnet(
-        train_x, test_x, train_y, test_y, args["model"]
+        train_x, test_x, train_y, test_y, args
     )
 
     model_evaluation(model, test_x, test_y, label_names)
