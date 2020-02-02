@@ -22,7 +22,7 @@ from minivggnet import MiniVGGNet
 def arguments_parser():
     '''Retrieve user data command'''
     parser = argparse.ArgumentParser(
-        prog="MiniVGGNet CNNs Application",
+        prog="MiniVGGNet CNNs Application with Learning Rate Schedulers",
         usage='''%(prog)s [on Cifar10 dataset]''',
         formatter_class=argparse.RawDescriptionHelpFormatter, description='''
         To lauch custom training execution:
@@ -67,7 +67,7 @@ def step_decay(epoch):
     '''Initialize the base initial learning rate, drop factor, and epochs to
     drop every'''
     init_alpha = 0.01
-    factor = 0.25
+    factor = 0.5
     drop_every = 5
 
     # Compute learning rate for the current epoch
