@@ -9,8 +9,8 @@ Created on Sun Feb  2 16:44:31 2020
 import os
 import argparse
 
-import matplotlib
 from sklearn.preprocessing import LabelBinarizer
+from sklearn.metrics import classification_report
 from keras.optimizers import SGD
 from keras.datasets import cifar10
 
@@ -62,7 +62,15 @@ def data_preparation(train_x, test_x, train_y, test_y):
 
     return train_x, test_x, train_y, test_y, label_names
 
-def training_minivggnet(train_x, test_x, train_y, test_y, saving_path):
+def monitoring(folder_path):
+    '''Monitor the training'''
+    # construct the set of callbacks
+    fig_path = os.path.sep.join([folder_path, "{}.png".format(os.getpid())])
+    json_path = os.path.sep.join([folder_path, "{}.json".format(os.getpid())])
+    callbacks = [TrainingMonitor(fig_path, json_path=json_path)]
+    return callbacks
+
+def training_minivggnet(train_x, test_x, train_y, test_y, args):
     '''Launch the lenet training'''
     # Initialize the optimizer and model
     print("[INFO] Compiling model...")
@@ -73,23 +81,28 @@ def training_minivggnet(train_x, test_x, train_y, test_y, saving_path):
     )
     model.summary()
 
+    callbacks = monitoring(args["output"])
+
     # train the network
     print("[INFO] Training network...")
     history = model.fit(
         train_x, train_y, validation_data=(test_x, test_y), batch_size=64,
-        epochs=40, verbose=1
+        epochs=10, callbacks=callbacks, verbose=1
     )
-    model.save(saving_path)
+    model.save(args["model"])
 
     return history, model
 
-def monitoring(folder_path):
-    '''Monitor the training'''
-    # construct the set of callbacks
-    fig_path = os.path.sep.join([folder_path, "{}.png".format(os.getpid())])
-    json_path = os.path.sep.join([folder_path, "{}.json".format(os.getpid())])
-    callbacks = [TrainingMonitor(fig_path, json_path=json_path)]
-    return callbacks
+def model_evaluation(model, test_x, test_y, label_names):
+    '''Display on terminal command the quality of model's predictions'''
+    print("[INFO] Evaluating network...")
+    predictions = model.predict(test_x, batch_size=64)
+    print(
+        classification_report(
+            test_y.argmax(axis=1), predictions.argmax(axis=1),
+            target_names=label_names
+        )
+    )
 
 def main():
     '''Launch main steps'''
@@ -108,7 +121,7 @@ def main():
         train_x, test_x, train_y, test_y, args["model"]
     )
 
-    monitoring(args["output"])
+    model_evaluation(model, test_x, test_y, label_names)
 
 
 if __name__ == "__main__":
