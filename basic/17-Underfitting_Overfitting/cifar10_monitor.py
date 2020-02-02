@@ -27,7 +27,7 @@ def arguments_parser():
         To lauch custom training execution:
         -------------------------------------
         python3 cifar10_monitor.py --model path/to/folder/weights.hdf5
-        --output path/to/folder/file.png
+        --output path/to/folder
         All arguments are mandatory.
         '''
     )
@@ -62,6 +62,35 @@ def data_preparation(train_x, test_x, train_y, test_y):
 
     return train_x, test_x, train_y, test_y, label_names
 
+def training_minivggnet(train_x, test_x, train_y, test_y, saving_path):
+    '''Launch the lenet training'''
+    # Initialize the optimizer and model
+    print("[INFO] Compiling model...")
+    opt = SGD(lr=0.01, momentum=0.9, nesterov=True)
+    model = MiniVGGNet.build(width=32, height=32, depth=3, classes=10)
+    model.compile(
+        loss="categorical_crossentropy", optimizer=opt, metrics=["accuracy"]
+    )
+    model.summary()
+
+    # train the network
+    print("[INFO] Training network...")
+    history = model.fit(
+        train_x, train_y, validation_data=(test_x, test_y), batch_size=64,
+        epochs=40, verbose=1
+    )
+    model.save(saving_path)
+
+    return history, model
+
+def monitoring(folder_path):
+    '''Monitor the training'''
+    # construct the set of callbacks
+    fig_path = os.path.sep.join([folder_path, "{}.png".format(os.getpid())])
+    json_path = os.path.sep.join([folder_path, "{}.json".format(os.getpid())])
+    callbacks = [TrainingMonitor(fig_path, json_path=json_path)]
+    return callbacks
+
 def main():
     '''Launch main steps'''
     args = arguments_parser()
@@ -74,6 +103,12 @@ def main():
     train_x, test_x, train_y, test_y, label_names = data_preparation(
         train_x, test_x, train_y, test_y
     )
+
+    history, model = training_minivggnet(
+        train_x, test_x, train_y, test_y, args["model"]
+    )
+
+    monitoring(args["output"])
 
 
 if __name__ == "__main__":
