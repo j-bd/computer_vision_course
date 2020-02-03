@@ -9,6 +9,8 @@ Created on Mon Feb  3 15:40:02 2020
 import os
 import argparse
 
+import matplotlib.pyplot as plt
+import numpy as np
 from sklearn.preprocessing import LabelBinarizer
 from sklearn.metrics import classification_report
 from keras.optimizers import SGD
@@ -65,6 +67,81 @@ def data_preparation(train_x, test_x, train_y, test_y):
 
     return train_x, test_x, train_y, test_y, label_names
 
+def checkpoint(args):
+    '''Return a callback checkpoint configuration'''
+    # construct the callback to save only the *best* model to disk based on the
+    # validation loss
+    fname = os.path.sep.join(
+        [args["weights"], "weights-{epoch:03d}-{val_loss:.4f}.hdf5"]
+    )
+
+    # The mode parameter controls whether the ModelCheckpoint should be looking
+    # for values that minimize our metric or maximize it
+    checkpoint = ModelCheckpoint(
+        fname, monitor="val_loss", mode="min", save_best_only=True, verbose=1
+    )
+    return [checkpoint]
+
+def training_minivggnet(train_x, test_x, train_y, test_y, args):
+    '''Launch the lenet training'''
+    # Initialize the optimizer and model
+    print("[INFO] Compiling model...")
+    opt = SGD(lr=0.01, decay=0.01 / 40, momentum=0.9, nesterov=True)
+    model = MiniVGGNet.build(width=32, height=32, depth=3, classes=10)
+    model.compile(
+        loss="categorical_crossentropy", optimizer=opt, metrics=["accuracy"]
+    )
+    model.summary()
+
+    callbacks = checkpoint(args)
+
+    # train the network
+    print("[INFO] Training network...")
+    history = model.fit(
+        train_x, train_y, validation_data=(test_x, test_y), batch_size=64,
+        epochs=40, callbacks=callbacks, verbose=1
+    )
+    model.save(args["model"])
+
+    return history, model
+
+def display_learning_evol(history_dic, saving_path):
+    '''Plot the training loss and accuracy'''
+    plt.style.use("ggplot")
+    plt.figure()
+    plt.plot(
+        np.arange(0, len(history_dic.history["loss"])),
+        history_dic.history["loss"], label="train_loss"
+    )
+    plt.plot(
+        np.arange(0, len(history_dic.history["val_loss"])),
+        history_dic.history["val_loss"], label="val_loss"
+    )
+    plt.plot(
+        np.arange(0, len(history_dic.history["accuracy"])),
+        history_dic.history["accuracy"], label="train_acc"
+    )
+    plt.plot(
+        np.arange(0, len(history_dic.history["val_accuracy"])),
+        history_dic.history["val_accuracy"], label="val_accuracy"
+    )
+    plt.title("Training Loss and Accuracy")
+    plt.xlabel("Epoch #")
+    plt.ylabel("Loss/Accuracy")
+    plt.legend()
+    plt.savefig(saving_path)
+
+def model_evaluation(model, test_x, test_y, label_names):
+    '''Display on terminal command the quality of model's predictions'''
+    print("[INFO] Evaluating network...")
+    predictions = model.predict(test_x, batch_size=64)
+    print(
+        classification_report(
+            test_y.argmax(axis=1), predictions.argmax(axis=1),
+            target_names=label_names
+        )
+    )
+
 def main():
     '''Launch main steps'''
     args = arguments_parser()
@@ -75,7 +152,13 @@ def main():
         train_x, test_x, train_y, test_y
     )
 
+    history, model = training_minivggnet(
+        train_x, test_x, train_y, test_y, args
+    )
 
+    display_learning_evol(history, args["output"])
+
+    model_evaluation(model, test_x, test_y, label_names)
 
 
 if __name__ == "__main__":
