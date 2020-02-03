@@ -70,17 +70,24 @@ def data_preparation(train_x, test_x, train_y, test_y):
 
 def checkpoint_call(args):
     '''Return a callback checkpoint configuration'''
-    # construct the callback to save only the *best* model to disk based on the
+    # construct the callback to save only improvment model to disk based on the
     # validation loss
-    fname = os.path.sep.join(
-        [args["weights"], "weights-{epoch:03d}-{val_loss:.4f}.hdf5"]
+#    fname = os.path.sep.join(
+#        [args["weights"], "weights-{epoch:03d}-{val_loss:.4f}.hdf5"]
+#    )
+#    # The mode parameter controls whether the ModelCheckpoint should be looking
+#    # for values that minimize our metric or maximize it
+#    checkpoint = ModelCheckpoint(
+#        fname, monitor="val_loss", mode="min", save_best_only=True, verbose=1
+#    )
+
+    # construct the callback to save only the *best* model to disk
+    # based on the validation loss
+    checkpoint = ModelCheckpoint(
+        args["weights"], monitor="val_loss", mode="min", save_best_only=True,
+        verbose=1
     )
 
-    # The mode parameter controls whether the ModelCheckpoint should be looking
-    # for values that minimize our metric or maximize it
-    checkpoint = ModelCheckpoint(
-        fname, monitor="val_loss", mode="min", save_best_only=True, verbose=1
-    )
     return [checkpoint]
 
 def training_minivggnet(train_x, test_x, train_y, test_y, args):
