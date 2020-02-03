@@ -28,13 +28,14 @@ def arguments_parser():
         formatter_class=argparse.RawDescriptionHelpFormatter, description='''
         To lauch custom training execution:
         -------------------------------------
-        python3 cifar10_monitor.py --weights "path/to/weights/directory"
+        python3 cifar10_checkpoint_improvements.py
+        --weights "path/to/weights/directory"
         --model "path/to/directory/weights.hdf5" --output "path/to/directory"
         All arguments are mandatory.
         '''
     )
     parser.add_argument(
-        "-w", "--weights", required=True,help="path to weights directory"
+        "-w", "--weights", required=True, help="path to weights directory"
     )
     parser.add_argument(
         "-m", "--model", required=True, help="path to save model"
@@ -67,7 +68,7 @@ def data_preparation(train_x, test_x, train_y, test_y):
 
     return train_x, test_x, train_y, test_y, label_names
 
-def checkpoint(args):
+def checkpoint_call(args):
     '''Return a callback checkpoint configuration'''
     # construct the callback to save only the *best* model to disk based on the
     # validation loss
@@ -93,7 +94,7 @@ def training_minivggnet(train_x, test_x, train_y, test_y, args):
     )
     model.summary()
 
-    callbacks = checkpoint(args)
+    callbacks = checkpoint_call(args)
 
     # train the network
     print("[INFO] Training network...")
