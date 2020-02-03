@@ -29,11 +29,12 @@ class TrainingMonitor(BaseLogger):
         self.json_path = json_path
         # Starting epoch that training is resumed at when using ctrl + c training
         self.start_at = start_at
-        # Initialize the history dictionary
-        self.loss_history = {}
 
     def on_train_begin(self, logs={}):
         '''Retrieve or not loss values'''
+        # Initialize the history dictionary
+        self.loss_history = {}
+
         # If the JSON history path exists, load the training history
         if self.json_path is not None:
             if os.path.exists(self.json_path):
@@ -58,7 +59,7 @@ class TrainingMonitor(BaseLogger):
         # Check to see if the training history should be serialized to file
         if self.json_path is not None:
             file = open(self.json_path, "w")
-            file.write(json.dumps(self.loss_history))
+            file.write(json.dumps(str(self.loss_history)))
             file.close()
 
         # Ensure at least two epochs have passed before plotting
