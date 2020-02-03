@@ -41,9 +41,41 @@ def arguments_parser():
     args = vars(parser.parse_args())
     return args
 
+def data_loader():
+    '''Get Cifar10 data'''
+    print("[INFO] Loading CIFAR-10 data...")
+    (train_x, train_y), (test_x, test_y) = cifar10.load_data()
+    return train_x, test_x, train_y, test_y
+
+def data_preparation(train_x, test_x, train_y, test_y):
+    '''Scaling and labelising data'''
+    train_x = train_x.astype("float") / 255.0
+    test_x = test_x.astype("float") / 255.0
+
+    # Convert the labels from integers to vectors
+    label_bin = LabelBinarizer()
+    train_y = label_bin.fit_transform(train_y)
+    test_y = label_bin.transform(test_y)
+
+    # Initialize the label names for the CIFAR-10 dataset
+    label_names = [
+        "airplane", "automobile", "bird", "cat", "deer", "dog", "frog", "horse",
+        "ship", "truck"
+    ]
+
+    return train_x, test_x, train_y, test_y, label_names
+
 def main():
     '''Launch main steps'''
     args = arguments_parser()
+
+    train_x, test_x, train_y, test_y = data_loader()
+
+    train_x, test_x, train_y, test_y, label_names = data_preparation(
+        train_x, test_x, train_y, test_y
+    )
+
+
 
 
 if __name__ == "__main__":
