@@ -31,7 +31,8 @@ def arguments_parser():
         -------------------------------------
         python3 cifar10_checkpoint_improvements.py
         --weights "path/to/weights/directory"
-        --model "path/to/directory/weights.hdf5" --output "path/to/directory"
+        --history "path/to/directory/history.png"
+        --model "path/to/directory/weights.hdf5" --tboutput "path/to/directory"
         All arguments are mandatory.
         '''
     )
@@ -39,9 +40,14 @@ def arguments_parser():
         "-w", "--weights", required=True, help="path to weights directory"
     )
     parser.add_argument(
-        "-m", "--model", required=True, help="path to save model"
+        "-t", "--training", required=True, help="path to save 'history.png' model"
     )
-    parser.add_argument("-o", "--output", required=True, help="path to output")
+    parser.add_argument(
+        "-m", "--model", required=True, help="path to save 'file.hdf5' model"
+    )
+    parser.add_argument(
+        "-o", "--tboutput", required=True, help="path to TensorBoard directory"
+    )
     args = vars(parser.parse_args())
     return args
 
@@ -86,7 +92,7 @@ def checkpoint_call(args):
     # construct the callback to save only the *best* model to disk based on the
     # validation loss
     checkpoint = ModelCheckpoint(
-        args["weights"], monitor="val_loss", mode="min", save_best_only=True,
+        args, monitor="val_loss", mode="min", save_best_only=True,
         verbose=1
     )
 
@@ -104,10 +110,10 @@ def training_minivggnet(train_x, test_x, train_y, test_y, args):
     model.summary()
 
     # Callbacks creation
-    checkpoint_save = checkpoint_call(args)
+    checkpoint_save = checkpoint_call(args["weights"])
     learning_rate = LearningRateScheduler(step_decay)
     tensor_board = TensorBoard(
-        log_dir=args["output"], histogram_freq=1, write_graph=True,
+        log_dir=args["tboutput"], histogram_freq=1, write_graph=True,
         write_images=True
     )
     callbacks = [checkpoint_save, learning_rate, tensor_board]
@@ -116,7 +122,7 @@ def training_minivggnet(train_x, test_x, train_y, test_y, args):
     print("[INFO] Training network...")
     history = model.fit(
         train_x, train_y, validation_data=(test_x, test_y), batch_size=64,
-        epochs=15, callbacks=callbacks, verbose=1
+        epochs=10, callbacks=callbacks, verbose=1
     )
     model.save(args["model"])
 
@@ -173,7 +179,7 @@ def main():
         train_x, test_x, train_y, test_y, args
     )
 
-    display_learning_evol(history, args["output"])
+    display_learning_evol(history, args["training"])
 
     model_evaluation(model, test_x, test_y, label_names)
 
