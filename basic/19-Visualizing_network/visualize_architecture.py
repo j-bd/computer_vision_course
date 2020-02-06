@@ -19,6 +19,5 @@ def main():
     plot_model(model, to_file="lenet_architecture.png", show_shapes=True)
 
 
-
 if __name__ == "__main__":
     main()
