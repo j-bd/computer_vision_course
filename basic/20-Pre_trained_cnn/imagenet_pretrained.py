@@ -76,7 +76,26 @@ def image_preprocess(args):
     if args["model"] in ("inception", "xception"):
         input_shape = (299, 299)
         preprocess = preprocess_input
-    return input_shape, preprocess
+
+    # Load the input image using the Keras helper utility while ensuring the
+    # image is resized to ‘inputShape‘, the required input dimensions for the
+    # ImageNet pre-trained network
+    print("[INFO] loading and pre-processing image...")
+    image = load_img(args["image"], target_size=input_shape)
+    image = img_to_array(image)
+
+    # Input image is now represented as a NumPy array of shape
+    # (inputShape[0], inputShape[1], 3) however we need to expand the dimension
+    # by making the shape (1, inputShape[0], inputShape[1], 3) so we can pass it
+    # through the network
+
+    image = np.expand_dims(image, axis=0)
+
+    # Pre-process the image using the appropriate function based on the model
+    # that has been loaded (i.e., mean subtraction, scaling, etc.)
+    image = preprocess(image)
+
+    return image
 
 def model_loading(args):
     '''Load our the network weights from disk'''
@@ -96,7 +115,7 @@ def main():
     args = arguments_parser()
     check_input(args)
 
-    input_shape, preprocess = image_preprocess(args)
+    image = image_preprocess(args)
 
     model = model_loading(args)
 
