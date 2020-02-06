@@ -118,18 +118,21 @@ def prediction(model, image, args):
 
     # loop over the predictions and display the rank-5 predictions +
     # probabilities to our terminal
-    for (i, (imagenetID, label, prob)) in enumerate(result[0]):
+    for (i, (imagenet_id, label, prob)) in enumerate(result[0]):
         print("{}. {}: {:.2f}%".format(i + 1, label, prob * 100))
 
     return result
 
 def display_result(result, args):
+    '''display original image with label'''
     # load the image via OpenCV, draw the top prediction on the image,
     # and display the image to our screen
     original = cv2.imread(args["image"])
-    (imagenetID, label, prob) = result[0][0]
-    cv2.putText(original, "Label: {}".format(label), (10, 30),
-    cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
+    (imagenet_id, label, prob) = result[0][0]
+    cv2.putText(
+        original, "Label: {}".format(label), (10, 30), cv2.FONT_HERSHEY_SIMPLEX,
+        0.8, (0, 255, 0), 2
+    )
     cv2.imshow("Classification", original)
     cv2.waitKey(5000)
 
