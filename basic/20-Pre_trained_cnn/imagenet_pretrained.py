@@ -63,14 +63,14 @@ def check_input(args):
 
 def image_preprocess(args):
     '''Provide image resizing preprocessing'''
-    # initialize the input image shape (224x224 pixels) along with the
+    # Initialize the input image shape (224x224 pixels) along with the
     # pre-processing function (this might need to be changed based on which
     # model we use to classify our image)
     input_shape = (224, 224)
 
     preprocess = imagenet_utils.preprocess_input
 
-    # if we are using the InceptionV3 or Xception networks, then we
+    # If we are using the InceptionV3 or Xception networks, then we
     # need to set the input shape to (299x299) [rather than (224x224)]
     # and use a different image processing function
     if args["model"] in ("inception", "xception"):
@@ -78,12 +78,27 @@ def image_preprocess(args):
         preprocess = preprocess_input
     return input_shape, preprocess
 
+def model_loading(args):
+    '''Load our the network weights from disk'''
+    # (NOTE: if this is the first time you are running this script for a given
+    # network, the weights will need to be downloaded first -- depending on
+    # which network you are using, the weights can be 90-575MB, so be patient;
+    # the weights will be cached and subsequent runs of this script will be
+    # *much* faster)
+    print("[INFO] Loading {}...".format(args["model"]))
+    network = MODELS[args["model"]]
+    model = network(weights="imagenet")
+
+    return model
+
 def main():
     '''Launch main steps'''
     args = arguments_parser()
     check_input(args)
 
     input_shape, preprocess = image_preprocess(args)
+
+    model = model_loading(args)
 
 
 if __name__ == "__main__":
