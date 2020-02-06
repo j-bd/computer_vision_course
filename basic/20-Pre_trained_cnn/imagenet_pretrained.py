@@ -110,6 +110,29 @@ def model_loading(args):
 
     return model
 
+def prediction(model, image, args):
+    '''Classify the image'''
+    print("[INFO] Classifying image with ’{}’...".format(args["model"]))
+    preds = model.predict(image)
+    result = imagenet_utils.decode_predictions(preds)
+
+    # loop over the predictions and display the rank-5 predictions +
+    # probabilities to our terminal
+    for (i, (imagenetID, label, prob)) in enumerate(result[0]):
+        print("{}. {}: {:.2f}%".format(i + 1, label, prob * 100))
+
+    return result
+
+def display_result(result, args):
+    # load the image via OpenCV, draw the top prediction on the image,
+    # and display the image to our screen
+    original = cv2.imread(args["image"])
+    (imagenetID, label, prob) = result[0][0]
+    cv2.putText(original, "Label: {}".format(label), (10, 30),
+    cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
+    cv2.imshow("Classification", original)
+    cv2.waitKey(5000)
+
 def main():
     '''Launch main steps'''
     args = arguments_parser()
@@ -118,6 +141,10 @@ def main():
     image = image_preprocess(args)
 
     model = model_loading(args)
+
+    result = prediction(model, image, args)
+
+    display_result(result, args)
 
 
 if __name__ == "__main__":
