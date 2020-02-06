@@ -22,6 +22,14 @@ from keras.preprocessing.image import img_to_array
 from keras.preprocessing.image import load_img
 
 
+MODELS = {
+    "vgg16": VGG16,
+    "vgg19": VGG19,
+    "inception": InceptionV3,
+    "xception": Xception,
+    "resnet": ResNet50
+}
+
 def arguments_parser():
     '''Retrieve user data command'''
     parser = argparse.ArgumentParser(
@@ -32,7 +40,7 @@ def arguments_parser():
         -------------------------------------
         python3 imagenet_pretrained.py
         --image "path/to/input/image"  --model "model name to be used"
-        All arguments are mandatory.
+        Image argument is mandatory.
         '''
     )
     parser.add_argument(
@@ -45,9 +53,37 @@ def arguments_parser():
     args = vars(parser.parse_args())
     return args
 
+def check_input(args):
+    '''Check if model argument is in MODELS dictionary'''
+    if args["model"] not in MODELS.keys():
+        raise AssertionError(
+            "The --model command line argument should be a key in the ‘MODELS‘ "\
+            "dictionary"
+        )
+
+def image_preprocess(args):
+    '''Provide image resizing preprocessing'''
+    # initialize the input image shape (224x224 pixels) along with the
+    # pre-processing function (this might need to be changed based on which
+    # model we use to classify our image)
+    input_shape = (224, 224)
+
+    preprocess = imagenet_utils.preprocess_input
+
+    # if we are using the InceptionV3 or Xception networks, then we
+    # need to set the input shape to (299x299) [rather than (224x224)]
+    # and use a different image processing function
+    if args["model"] in ("inception", "xception"):
+        input_shape = (299, 299)
+        preprocess = preprocess_input
+    return input_shape, preprocess
+
 def main():
     '''Launch main steps'''
     args = arguments_parser()
+    check_input(args)
+
+    input_shape, preprocess = image_preprocess(args)
 
 
 if __name__ == "__main__":
