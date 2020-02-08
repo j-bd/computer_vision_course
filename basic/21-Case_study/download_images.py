@@ -9,11 +9,14 @@ Created on Fri Feb  7 17:31:34 2020
 import argparse
 import time
 import os
+import random
 
 import requests
+from PIL import Image, ImageDraw, ImageFont
 
 
-URL = "https://www.e-zpassny.com/vector/jcaptcha.do"
+#URL = "https://www.e-zpassny.com/vector/jcaptcha.do"
+URL = "http://allwebco-templates.com/support/script-simple-captcha.htm"
 
 def arguments_parser():
     '''Retrieve user data command'''
@@ -66,10 +69,28 @@ def download(args):
         # insert a small sleep to be courteous to the server
         time.sleep(0.1)
 
+def create(args):
+    '''Create 'jpg' file of 4 numbers'''
+    total = 0
+    for i in range(0, args["num_images"]):
+        img = Image.new('RGB', (200, 60), color = (255, 255, 255))
+        fnt = ImageFont.truetype('Pillow/Tests/fonts/FreeMono.ttf', 40)
+        numbers = (
+            f"{random.randint(0,9)} {random.randint(0,9)} {random.randint(0,9)} "
+            f"{random.randint(0,9)}"
+        )
+        draw = ImageDraw.Draw(img)
+        draw.text((10,10), numbers, font=fnt, fill=(0, 0, 0))
+        path = os.path.sep.join(
+                [args["output"], "{}.jpg".format(str(total).zfill(5))]
+        )
+        img.save(path)
+        total += 1
+
 def main():
     '''Launch main steps'''
     args = arguments_parser()
-    download(args)
+    create(args)
 
 
 if __name__ == "__main__":
