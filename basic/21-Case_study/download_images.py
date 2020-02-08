@@ -25,7 +25,7 @@ def arguments_parser():
         formatter_class=argparse.RawDescriptionHelpFormatter, description='''
         To lauch custom training execution:
         -------------------------------------
-        python3 download_images.py.py
+        python3 download_images.py
         --output "path/to/output/directory"  --nb_images integer
         Output argument is mandatory.
         '''
