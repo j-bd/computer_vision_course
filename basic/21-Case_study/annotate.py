@@ -68,45 +68,45 @@ def processing(args):
             cnts = cnts[1] if imutils.is_cv3() else cnts[0] # Check OpenCV version
             cnts = sorted(cnts, key=cv2.contourArea, reverse=True)[:4]
 
-            # loop over the contours
-            for c in cnts:
-                # compute the bounding box for the contour then extract the digit
-                (x, y, w, h) = cv2.boundingRect(c)
+            # Loop over the contours
+            for cnt in cnts:
+                # Compute the bounding box for the contour then extract the digit
+                (x, y, w, h) = cv2.boundingRect(cnt)
                 roi = gray[y - 5:y + h + 5, x - 5:x + w + 5]
 
-                # display the character, making it larger enough for us
-                # to see, then wait for a keypress
+                # Display the character, making it larger enough for us to see,
+                # then wait for a keypress
                 cv2.imshow("ROI", imutils.resize(roi, width=28))
                 key = cv2.waitKey(0)
 
-                # if the ’‘’ key is pressed, then ignore the character
-                if key == ord("‘"):
+                # If the ’‘’ key is pressed, then ignore the character
+                if key == ord("'"):
                     print("[INFO] ignoring character")
                     continue
-                # grab the key that was pressed and construct the path
-                # the output directory
+                # Grab the key that was pressed and construct the path the
+                # output directory
                 key = chr(key).upper()
-                dirPath = os.path.sep.join([args["annot"], key])
+                dir_path = os.path.sep.join([args["annot"], key])
 
-                # if the output directory does not exist, create it
-                if not os.path.exists(dirPath):
-                    os.makedirs(dirPath)
+                # If the output directory does not exist, create it
+                if not os.path.exists(dir_path):
+                    os.makedirs(dir_path)
 
-                # write the labeled character to file
+                # Write the labeled character to file
                 count = counts.get(key, 1)
-                p = os.path.sep.join([dirPath, "{}.png".format(
-                str(count).zfill(6))])
-                cv2.imwrite(p, roi)
-                # increment the count for the current key
+                path = os.path.sep.join(
+                    [dir_path, "{}.png".format(str(count).zfill(6))]
+                )
+                cv2.imwrite(path, roi)
+                # Increment the count for the current key
                 counts[key] = count + 1
 
-        # we are trying to control-c out of the script, so break from the
-        # loop (you still need to press a key for the active window to
-        # trigger this)
+        # We are trying to control-cnt out of the script, so break from the loop
+        # (you still need to press a key for the active window to trigger this)
         except KeyboardInterrupt:
             print("[INFO] manually leaving script")
             break
-        # an unknown error has occurred for this particular image
+        # An unknown error has occurred for this particular image
         except:
             print("[INFO] skipping image...")
 
