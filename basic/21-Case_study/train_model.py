@@ -36,6 +36,7 @@ def arguments_parser():
         python3 train_model.py
         --dataset "path/to/dataset/directory" --model "path/to/output/model.hdf5"
         --weights "path/to/weights/directory" --tboutput "path/to/directory"
+        --history "path/to/directory/history.png"
         All arguments are mandatory.
         '''
     )
@@ -50,6 +51,9 @@ def arguments_parser():
     )
     parser.add_argument(
         "-tb", "--tboutput", required=True, help="path to TensorBoard directory"
+    )
+    parser.add_argument(
+        "-h", "--history", required=True, help="path to save 'history.png' model"
     )
     args = vars(parser.parse_args())
     return args
@@ -134,6 +138,32 @@ def model_evaluation(model, test_x, test_y, label_names):
         )
     )
 
+def display_learning_evol(history_dic, saving_path):
+    '''Plot the training loss and accuracy'''
+    plt.style.use("ggplot")
+    plt.figure()
+    plt.plot(
+        np.arange(0, len(history_dic.history["loss"])),
+        history_dic.history["loss"], label="train_loss"
+    )
+    plt.plot(
+        np.arange(0, len(history_dic.history["val_loss"])),
+        history_dic.history["val_loss"], label="val_loss"
+    )
+    plt.plot(
+        np.arange(0, len(history_dic.history["accuracy"])),
+        history_dic.history["accuracy"], label="train_acc"
+    )
+    plt.plot(
+        np.arange(0, len(history_dic.history["val_accuracy"])),
+        history_dic.history["val_accuracy"], label="val_accuracy"
+    )
+    plt.title("Training Loss and Accuracy")
+    plt.xlabel("Epoch #")
+    plt.ylabel("Loss/Accuracy")
+    plt.legend()
+    plt.savefig(saving_path)
+
 def main():
     '''Launch main steps'''
     args = arguments_parser()
@@ -146,6 +176,8 @@ def main():
     history, model = lenet_training(args, train_x, test_x, train_y, test_y)
 
     model_evaluation(model, test_x, test_y, label_bi)
+
+    display_learning_evol(history, args["history"])
 
 
 if __name__ == "__main__":
