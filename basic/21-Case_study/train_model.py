@@ -13,9 +13,9 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 from imutils import paths
-from keras.preprocessing.image import img_to_array
+from tensorflow.keras.preprocessing.image import img_to_array
 from sklearn.preprocessing import LabelBinarizer
-from keras.optimizers import SGD
+from tensorflow.keras.optimizers import SGD
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
 from tensorflow.keras.callbacks import TensorBoard
@@ -122,7 +122,7 @@ def lenet_training(args, train_x, test_x, train_y, test_y):
     print("[INFO] Training network...")
     history = model.fit(
         train_x, train_y, validation_data=(test_x, test_y), batch_size=32,
-        epochs=15, callbacks=tensor_board, verbose=1
+        epochs=15, callbacks=[tensor_board], verbose=1
     )
     model.save(args["model"])
 
