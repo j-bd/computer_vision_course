@@ -45,9 +45,26 @@ def arguments_parser():
     args = vars(parser.parse_args())
     return args
 
+def data_loader(data_directory):
+    '''Load data and corresponding labels from disk'''
+    data = []
+    labels = []
+
+    for image_path in paths.list_images(data_directory):
+        image = cv2.imread(image_path)
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        image = preprocess(image, 28, 28)
+        image = img_to_array(image)
+        data.append(image)
+
+        label = image_path.split(os.path.sep)[-2]
+        labels.append(label)
+    return data, labels
+
 def main():
     '''Launch main steps'''
     args = arguments_parser()
+    dataset, labels = data_loader(args["dataset"])
 
 
 if __name__ == "__main__":
