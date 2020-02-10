@@ -61,10 +61,28 @@ def data_loader(data_directory):
         labels.append(label)
     return data, labels
 
+def data_preparation(dataset, labels):
+    '''Scaling and binarize data'''
+    dataset = np.array(dataset, dtype="float") / 255.0
+    labels = np.array(labels)
+
+    (train_x, test_x, train_y, test_y) = train_test_split(
+        dataset, labels, test_size=0.25, random_state=42
+    )
+
+    # Convert the labels from integers to vectors
+    label_bi = LabelBinarizer()
+    train_y = label_bi.fit_transform(train_y)
+    test_y = label_bi.fit_transform(test_y)
+
+    return train_x, test_x, train_y, test_y
+
 def main():
     '''Launch main steps'''
     args = arguments_parser()
     dataset, labels = data_loader(args["dataset"])
+
+    train_x, test_x, train_y, test_y = data_preparation(dataset, labels)
 
 
 if __name__ == "__main__":
