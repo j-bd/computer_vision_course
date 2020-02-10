@@ -84,7 +84,7 @@ def data_preparation(dataset, labels):
     train_y = label_bi.fit_transform(train_y)
     test_y = label_bi.fit_transform(test_y)
 
-    return train_x, test_x, train_y, test_y
+    return train_x, test_x, train_y, test_y, label_bi
 
 def checkpoint_call(args):
     '''Return a callback checkpoint configuration'''
@@ -123,14 +123,29 @@ def lenet_training(args, train_x, test_x, train_y, test_y):
 
     return history, model
 
+def model_evaluation(model, test_x, test_y, label_names):
+    '''Display on terminal command the quality of model's predictions'''
+    print("[INFO] Evaluating network...")
+    predictions = model.predict(test_x, batch_size=64)
+    print(
+        classification_report(
+            test_y.argmax(axis=1), predictions.argmax(axis=1),
+            target_names=label_names
+        )
+    )
+
 def main():
     '''Launch main steps'''
     args = arguments_parser()
     dataset, labels = data_loader(args["dataset"])
 
-    train_x, test_x, train_y, test_y = data_preparation(dataset, labels)
+    train_x, test_x, train_y, test_y, label_bi = data_preparation(
+        dataset, labels
+    )
 
     history, model = lenet_training(args, train_x, test_x, train_y, test_y)
+
+    model_evaluation(model, test_x, test_y, label_bi)
 
 
 if __name__ == "__main__":
