@@ -14,12 +14,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 from imutils import paths
 from tensorflow.keras.preprocessing.image import img_to_array
-from sklearn.preprocessing import LabelBinarizer
 from tensorflow.keras.optimizers import SGD
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import classification_report
 from tensorflow.keras.callbacks import TensorBoard
 from tensorflow.keras.callbacks import ModelCheckpoint
+from sklearn.preprocessing import LabelBinarizer
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
 
 from lenet import LeNet
 from captchahelper import preprocess
@@ -53,7 +53,7 @@ def arguments_parser():
         "-tb", "--tboutput", required=True, help="path to TensorBoard directory"
     )
     parser.add_argument(
-        "-e", "--history", required=True, help="path to save 'history.png' model"
+        "-hy", "--history", required=True, help="path to save 'history.png' model"
     )
     args = vars(parser.parse_args())
     return args
