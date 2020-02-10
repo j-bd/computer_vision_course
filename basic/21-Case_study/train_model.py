@@ -18,6 +18,8 @@ from sklearn.preprocessing import LabelBinarizer
 from keras.optimizers import SGD
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
+from tensorflow.keras.callbacks import TensorBoard
+from tensorflow.keras.callbacks import ModelCheckpoint
 
 from lenet import LeNet
 from captchahelper import preprocess
@@ -32,15 +34,22 @@ def arguments_parser():
         To lauch custom training execution:
         -------------------------------------
         python3 train_model.py
-        --dataset "path/to/dataset/directory" --model "path/to/output/model"
+        --dataset "path/to/dataset/directory" --model "path/to/output/model.hdf5"
+        --weights "path/to/weights/directory" --tboutput "path/to/directory"
         All arguments are mandatory.
         '''
     )
     parser.add_argument(
-        "-", "--dataset", required=True, help="path to input dataset"
+        "-d", "--dataset", required=True, help="path to input dataset"
     )
     parser.add_argument(
-        "-m", "--model", required=True, help="path to output model"
+        "-m", "--model", required=True, help="path to save 'file.hdf5' model"
+    )
+    parser.add_argument(
+        "-w", "--weights", required=True, help="path to weights directory"
+    )
+    parser.add_argument(
+        "-tb", "--tboutput", required=True, help="path to TensorBoard directory"
     )
     args = vars(parser.parse_args())
     return args
@@ -77,12 +86,51 @@ def data_preparation(dataset, labels):
 
     return train_x, test_x, train_y, test_y
 
+def checkpoint_call(args):
+    '''Return a callback checkpoint configuration'''
+    # construct the callback to save only the *best* model to disk based on the
+    # validation loss
+    checkpoint = ModelCheckpoint(
+        args, monitor="val_loss", mode="min", save_best_only=True,
+        verbose=1
+    )
+    return checkpoint
+
+def lenet_training(args, train_x, test_x, train_y, test_y):
+    '''Launch the lenet training'''
+    print("[INFO] Compiling model...")
+    model = LeNet.build(width=28, height=28, depth=1, classes=9)
+    opt = SGD(lr=0.01, momentum=0.9, nesterov=True)
+    model.compile(
+        loss="categorical_crossentropy", optimizer=opt, metrics=["accuracy"]
+    )
+    model.summary()
+
+    # Callbacks creation
+    checkpoint_save = checkpoint_call(args["weights"])
+    tensor_board = TensorBoard(
+        log_dir=args["tboutput"], histogram_freq=1, write_graph=True,
+        write_images=True
+    )
+    callbacks = [checkpoint_save, tensor_board]
+
+    print("[INFO] Training network...")
+    history = model.fit(
+        train_x, train_y, validation_data=(test_x, test_y), batch_size=32,
+        epochs=15, callbacks=callbacks, verbose=1
+    )
+    model.save(args["model"])
+
+    return history, model
+
 def main():
     '''Launch main steps'''
     args = arguments_parser()
     dataset, labels = data_loader(args["dataset"])
 
     train_x, test_x, train_y, test_y = data_preparation(dataset, labels)
+
+    history, model = lenet_training(args, train_x, test_x, train_y, test_y)
 
 
 if __name__ == "__main__":
