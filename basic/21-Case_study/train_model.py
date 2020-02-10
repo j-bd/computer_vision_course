@@ -90,12 +90,13 @@ def data_preparation(dataset, labels):
 
     return train_x, test_x, train_y, test_y, label_bi
 
-def checkpoint_call(path):
-    '''Return a callback checkpoint configuration'''
-    # construct the callback to save only the *best* model to disk based on the
-    # validation loss
+def checkpoint_call(directory):
+    '''Return a callback checkpoint configuration to save only the best model'''
+    fname = os.path.sep.join(
+        [directory, "weights.hdf5"]
+    )
     checkpoint = ModelCheckpoint(
-        path, monitor="val_loss", mode="min", save_best_only=True,
+        fname, monitor="val_loss", mode="min", save_best_only=True,
         verbose=1
     )
     return checkpoint
@@ -111,18 +112,17 @@ def lenet_training(args, train_x, test_x, train_y, test_y):
     model.summary()
 
     # Callbacks creation
-#    checkpoint_save = checkpoint_call(args["weights"])
+    checkpoint_save = checkpoint_call(args["weights"])
     tensor_board = TensorBoard(
         log_dir=args["tboutput"], histogram_freq=1, write_graph=True,
         write_images=True
     )
-##    callbacks = [checkpoint_save, tensor_board]
-#    callbacks = [checkpoint_save]
+    callbacks = [checkpoint_save, tensor_board]
 
     print("[INFO] Training network...")
     history = model.fit(
         train_x, train_y, validation_data=(test_x, test_y), batch_size=32,
-        epochs=15, callbacks=[tensor_board], verbose=1
+        epochs=15, callbacks=callbacks, verbose=1
     )
     model.save(args["model"])
 
