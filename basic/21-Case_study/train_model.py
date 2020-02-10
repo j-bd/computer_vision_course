@@ -53,7 +53,7 @@ def arguments_parser():
         "-tb", "--tboutput", required=True, help="path to TensorBoard directory"
     )
     parser.add_argument(
-        "-h", "--history", required=True, help="path to save 'history.png' model"
+        "-e", "--history", required=True, help="path to save 'history.png' model"
     )
     args = vars(parser.parse_args())
     return args
@@ -90,12 +90,12 @@ def data_preparation(dataset, labels):
 
     return train_x, test_x, train_y, test_y, label_bi
 
-def checkpoint_call(args):
+def checkpoint_call(path):
     '''Return a callback checkpoint configuration'''
     # construct the callback to save only the *best* model to disk based on the
     # validation loss
     checkpoint = ModelCheckpoint(
-        args, monitor="val_loss", mode="min", save_best_only=True,
+        path, monitor="val_loss", mode="min", save_best_only=True,
         verbose=1
     )
     return checkpoint
@@ -103,7 +103,7 @@ def checkpoint_call(args):
 def lenet_training(args, train_x, test_x, train_y, test_y):
     '''Launch the lenet training'''
     print("[INFO] Compiling model...")
-    model = LeNet.build(width=28, height=28, depth=1, classes=9)
+    model = LeNet.build(width=28, height=28, depth=1, classes=10)
     opt = SGD(lr=0.01, momentum=0.9, nesterov=True)
     model.compile(
         loss="categorical_crossentropy", optimizer=opt, metrics=["accuracy"]
@@ -111,17 +111,18 @@ def lenet_training(args, train_x, test_x, train_y, test_y):
     model.summary()
 
     # Callbacks creation
-    checkpoint_save = checkpoint_call(args["weights"])
+#    checkpoint_save = checkpoint_call(args["weights"])
     tensor_board = TensorBoard(
         log_dir=args["tboutput"], histogram_freq=1, write_graph=True,
         write_images=True
     )
-    callbacks = [checkpoint_save, tensor_board]
+##    callbacks = [checkpoint_save, tensor_board]
+#    callbacks = [checkpoint_save]
 
     print("[INFO] Training network...")
     history = model.fit(
         train_x, train_y, validation_data=(test_x, test_y), batch_size=32,
-        epochs=15, callbacks=callbacks, verbose=1
+        epochs=15, callbacks=tensor_board, verbose=1
     )
     model.save(args["model"])
 
@@ -175,7 +176,7 @@ def main():
 
     history, model = lenet_training(args, train_x, test_x, train_y, test_y)
 
-    model_evaluation(model, test_x, test_y, label_bi)
+    model_evaluation(model, test_x, test_y, label_bi.classes_)
 
     display_learning_evol(history, args["history"])
 
