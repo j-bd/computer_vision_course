@@ -23,8 +23,31 @@ from lenet import LeNet
 from captchahelper import preprocess
 
 
+def arguments_parser():
+    '''Retrieve user data command'''
+    parser = argparse.ArgumentParser(
+        prog="Case study",
+        usage='''%(prog)s [Training LeNet CNNs]''',
+        formatter_class=argparse.RawDescriptionHelpFormatter, description='''
+        To lauch custom training execution:
+        -------------------------------------
+        python3 train_model.py
+        --dataset "path/to/dataset/directory" --model "path/to/output/model"
+        All arguments are mandatory.
+        '''
+    )
+    parser.add_argument(
+        "-", "--dataset", required=True, help="path to input dataset"
+    )
+    parser.add_argument(
+        "-m", "--model", required=True, help="path to output model"
+    )
+    args = vars(parser.parse_args())
+    return args
+
 def main():
     '''Launch main steps'''
+    args = arguments_parser()
 
 
 if __name__ == "__main__":
