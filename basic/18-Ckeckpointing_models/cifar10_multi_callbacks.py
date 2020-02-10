@@ -40,7 +40,7 @@ def arguments_parser():
         "-w", "--weights", required=True, help="path to weights directory"
     )
     parser.add_argument(
-        "-t", "--training", required=True, help="path to save 'history.png' model"
+        "-h", "--history", required=True, help="path to save 'history.png' model"
     )
     parser.add_argument(
         "-m", "--model", required=True, help="path to save 'file.hdf5' model"
@@ -179,7 +179,7 @@ def main():
         train_x, test_x, train_y, test_y, args
     )
 
-    display_learning_evol(history, args["training"])
+    display_learning_evol(history, args["history"])
 
     model_evaluation(model, test_x, test_y, label_names)
 
