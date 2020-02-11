@@ -69,7 +69,7 @@ def display_setup(x_val, y_val, w_val, h_val, output, pred):
     '''Prepare the display'''
     # Draw bounding box
     cv2.rectangle(
-        output, (x_val - 2, y_val - 2), (x_val + w_val + 4, y_val + h_val + 4),
+        output, (x_val - 2, y_val - 2), (x_val + w_val + 2, y_val + h_val + 2),
         (0, 255, 0), 1
     )
     # Draw the predicted digit on the output image itself
@@ -89,7 +89,7 @@ def numbers_prediction(cnts, gray, model):
         (x_val, y_val, w_val, h_val) = cv2.boundingRect(cnt)
         roi = gray[y_val - 5:y_val + h_val + 5, x_val - 5:x_val + w_val + 5]
 
-        # pre-process the ROI and classify it then classify it
+        # Pre-process the ROI and classify it then classify it
         roi = preprocess(roi, 28, 28)
         roi = np.expand_dims(img_to_array(roi), axis=0) / 255.0
         pred = model.predict(roi).argmax(axis=1)[0]
@@ -110,7 +110,7 @@ def main():
 
     # Randomly sample a few of the input images
     image_paths = list(paths.list_images(args["input"]))
-    image_paths = np.random.choice(image_paths, size=(10,), replace=False)
+    image_paths = np.random.choice(image_paths, size=10, replace=False)
 
     for path in image_paths:
         gray, thresh = image_preprocess(path)
