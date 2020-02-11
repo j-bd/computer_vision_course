@@ -10,8 +10,8 @@ import argparse
 
 import cv2
 import numpy as np
-from keras.preprocessing.image import img_to_array
-from keras.models import load_model
+from tensorflow.keras.preprocessing.image import img_to_array
+from tensorflow.keras.models import load_model
 import imutils
 from imutils import contours
 from imutils import paths
@@ -27,7 +27,7 @@ def arguments_parser():
         formatter_class=argparse.RawDescriptionHelpFormatter, description='''
         To lauch custom training execution:
         -------------------------------------
-        python3 train_model.py
+        python3 test_model.py
         --input "path/to/dataset/directory" --model "path/to/output/model.hdf5"
 
         All arguments are mandatory.
@@ -76,8 +76,11 @@ def display_setup(x_val, y_val, w_val, h_val, output, pred):
     cv2.putText(output, str(pred), (x_val - 5, y_val - 5),
     cv2.FONT_HERSHEY_SIMPLEX, 0.55, (0, 255, 0), 2)
 
-def numbers_prediction(cnts, gray, output, model):
+def numbers_prediction(cnts, gray, model):
     '''Predict numbers on an image and display the result'''
+    # Initialize the output image as a "grayscale" image with 3 channels along
+    # with the output predictions
+    output = cv2.merge([gray] * 3)
     predictions = []
     for cnt in cnts:
         # Compute the bounding box for the contour then extract the digit
@@ -103,17 +106,14 @@ def main():
     print("[INFO] Loading pre-trained network...")
     model = load_model(args["model"])
 
-    # randomly sample a few of the input images
+    # Randomly sample a few of the input images
     image_paths = list(paths.list_images(args["input"]))
     image_paths = np.random.choice(image_paths, size=(10,), replace=False)
 
     for path in paths:
         gray, thresh = image_preprocess(path)
         cnts = contours_finder(thresh)
-
-        output = cv2.merge([gray] * 3)
-
-        numbers_prediction(cnts, gray, output, model)
+        numbers_prediction(cnts, gray, model)
 
 
 if __name__ == "__main__":
