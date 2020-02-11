@@ -53,7 +53,7 @@ def image_preprocess(path):
     thresh = cv2.threshold(
         gray, 0, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU
     )[1]
-    return thresh
+    return gray, thresh
 
 def contours_finder(thresh):
     '''Determine contours of elements'''
@@ -63,10 +63,27 @@ def contours_finder(thresh):
     cnts = cnts[1] if imutils.is_cv3() else cnts[0]
     cnts = sorted(cnts, key=cv2.contourArea, reverse=True)[:4]
     cnts = contours.sort_contours(cnts)[0]
-    # initialize the output image as a "grayscale" image with 3
-    # channels along with the output predictions
-    output = cv2.merge([gray] * 3)
+    return cnts
+
+def prediction_display():
+    '''Display on screen prediction'''
+
+def numbers_prediction(cnts, gray, output, model):
+    '''Predict numbers on an image and display the result'''
     predictions = []
+    for c in cnts:
+        # compute the bounding box for the contour then extract the
+        # digit
+        (x, y, w, h) = cv2.boundingRect(c)
+        roi = gray[y - 5:y + h + 5, x - 5:x + w + 5]
+
+        # pre-process the ROI and classify it then classify it
+        roi = preprocess(roi, 28, 28)
+        roi = np.expand_dims(img_to_array(roi), axis=0) / 255.0
+        pred = model.predict(roi).argmax(axis=1)[0] + 1
+        predictions.append(str(pred))
+
+        prediction_display()
 
 def main():
     '''Launch main steps'''
@@ -80,9 +97,12 @@ def main():
     image_paths = np.random.choice(image_paths, size=(10,), replace=False)
 
     for path in paths:
-        thresh = image_preprocess(path)
+        gray, thresh = image_preprocess(path)
         cnts = contours_finder(thresh)
 
+        output = cv2.merge([gray] * 3)
+
+        numbers_prediction(cnts, gray, output, model)
 
 
 if __name__ == "__main__":
