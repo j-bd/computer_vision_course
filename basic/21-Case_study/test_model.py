@@ -90,7 +90,7 @@ def numbers_prediction(cnts, gray, model):
         # pre-process the ROI and classify it then classify it
         roi = preprocess(roi, 28, 28)
         roi = np.expand_dims(img_to_array(roi), axis=0) / 255.0
-        pred = model.predict(roi).argmax(axis=1)[0] + 1
+        pred = model.predict(roi).argmax(axis=1)[0]
         predictions.append(str(pred))
 
         display_setup(x_val, y_val, w_val, h_val, output, pred)
@@ -110,7 +110,7 @@ def main():
     image_paths = list(paths.list_images(args["input"]))
     image_paths = np.random.choice(image_paths, size=(10,), replace=False)
 
-    for path in paths:
+    for path in image_paths:
         gray, thresh = image_preprocess(path)
         cnts = contours_finder(thresh)
         numbers_prediction(cnts, gray, model)
