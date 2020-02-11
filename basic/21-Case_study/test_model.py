@@ -73,8 +73,10 @@ def display_setup(x_val, y_val, w_val, h_val, output, pred):
         (0, 255, 0), 1
     )
     # Draw the predicted digit on the output image itself
-    cv2.putText(output, str(pred), (x_val - 5, y_val - 5),
-    cv2.FONT_HERSHEY_SIMPLEX, 0.55, (0, 255, 0), 2)
+    cv2.putText(
+        output, str(pred), (x_val - 5, y_val - 5), cv2.FONT_HERSHEY_SIMPLEX,
+        0.55, (0, 255, 0), 2
+    )
 
 def numbers_prediction(cnts, gray, model):
     '''Predict numbers on an image and display the result'''
