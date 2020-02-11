@@ -65,17 +65,24 @@ def contours_finder(thresh):
     cnts = contours.sort_contours(cnts)[0]
     return cnts
 
-def prediction_display():
-    '''Display on screen prediction'''
+def display_setup(x_val, y_val, w_val, h_val, output, pred):
+    '''Prepare the display'''
+    # Draw bounding box
+    cv2.rectangle(
+        output, (x_val - 2, y_val - 2), (x_val + w_val + 4, y_val + h_val + 4),
+        (0, 255, 0), 1
+    )
+    # Draw the predicted digit on the output image itself
+    cv2.putText(output, str(pred), (x_val - 5, y_val - 5),
+    cv2.FONT_HERSHEY_SIMPLEX, 0.55, (0, 255, 0), 2)
 
 def numbers_prediction(cnts, gray, output, model):
     '''Predict numbers on an image and display the result'''
     predictions = []
-    for c in cnts:
-        # compute the bounding box for the contour then extract the
-        # digit
-        (x, y, w, h) = cv2.boundingRect(c)
-        roi = gray[y - 5:y + h + 5, x - 5:x + w + 5]
+    for cnt in cnts:
+        # Compute the bounding box for the contour then extract the digit
+        (x_val, y_val, w_val, h_val) = cv2.boundingRect(cnt)
+        roi = gray[y_val - 5:y_val + h_val + 5, x_val - 5:x_val + w_val + 5]
 
         # pre-process the ROI and classify it then classify it
         roi = preprocess(roi, 28, 28)
@@ -83,7 +90,11 @@ def numbers_prediction(cnts, gray, output, model):
         pred = model.predict(roi).argmax(axis=1)[0] + 1
         predictions.append(str(pred))
 
-        prediction_display()
+        display_setup(x_val, y_val, w_val, h_val, output, pred)
+    # Show the output image
+    print("[INFO] Captcha: {}".format("".join(predictions)))
+    cv2.imshow("Output", output)
+    cv2.waitKey()
 
 def main():
     '''Launch main steps'''
