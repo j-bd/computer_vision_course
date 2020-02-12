@@ -22,7 +22,7 @@ from tensorflow.keras.callbacks import TensorBoard
 from tensorflow.keras.callbacks import ModelCheckpoint
 from imutils import paths
 
-from lenet import LeNet
+from lenet_tf import LeNet
 
 
 def arguments_parser():
