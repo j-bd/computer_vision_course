@@ -34,8 +34,8 @@ def arguments_parser():
         To lauch custom training execution:
         -------------------------------------
         python3 train_model.py
-        --dataset "path/to/dataset/directory" --model "path/to/model/directory"
-        --tboutput "path/to/directory" --history "path/to/directory/history.png"
+        --dataset "path/to/dataset/directory" --output "path/to/model/directory"
+        --tboutput "path/to/directory"
 
         All arguments are mandatory.
         '''
