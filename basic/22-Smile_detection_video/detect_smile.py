@@ -91,8 +91,8 @@ def detection(args, detector, model, camera):
 
             # Determine the probabilities of both "smiling" and "not smiling",
             # then set the label accordingly
-            (notSmiling, smiling) = model.predict(roi)[0]
-            label = "Smiling" if smiling > notSmiling else "Not Smiling"
+            (not_smiling, smiling) = model.predict(roi)[0]
+            label = "Smiling" if smiling > not_smiling else "Not Smiling"
 
             # Display the label and bounding box rectangle on the output frame
             cv2.putText(
