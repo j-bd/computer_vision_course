@@ -62,23 +62,45 @@ def data_loader(data_directory):
     labels = []
 
     for image_path in sorted(list(paths.list_images(data_directory))):
-        # load the image, pre-process it, and store it in the data list
+        # Load the image, pre-process it, and store it in the data list
         image = cv2.imread(image_path)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         image = imutils.resize(image, width=28)
         image = img_to_array(image)
         data.append(image)
-        # extract the class label from the image path and update the
-        # labels list
+        # Extract the class label from the image path and update the labels list
         label = image_path.split(os.path.sep)[-3]
         label = "smiling" if label == "positives" else "not_smiling"
         labels.append(label)
     return data, labels
 
+def data_preparation(dataset, labels):
+    '''Scaling and binarize data'''
+    dataset = np.array(dataset, dtype="float") / 255.0
+    labels = np.array(labels)
+
+    # Convert the labels from integers to vectors
+    label_enc = LabelEncoder()
+    labels = utils.to_categorical(label_enc.fit_transform(labels), 2)
+
+    # Account for skew in the labeled data -> unbalanced data
+    class_totals = labels.sum(axis=0)
+    class_weight = class_totals.max() / class_totals
+
+    (train_x, test_x, train_y, test_y) = train_test_split(
+        dataset, labels, test_size=0.20, stratify=labels, random_state=42
+    )
+    return train_x, test_x, train_y, test_y, class_weight
+
 def main():
     '''Launch main steps'''
     args = arguments_parser()
     dataset, labels = data_loader(args["dataset"])
+
+    train_x, test_x, train_y, test_y, class_weight = data_preparation(
+        dataset, labels
+    )
+
 
 if __name__ == "__main__":
     main()
