@@ -28,7 +28,7 @@ from lenet_tf import LeNet
 def arguments_parser():
     '''Retrieve user data command'''
     parser = argparse.ArgumentParser(
-        prog="Case study",
+        prog="Smile Detection",
         usage='''%(prog)s [Training LeNet CNNs]''',
         formatter_class=argparse.RawDescriptionHelpFormatter, description='''
         To lauch custom training execution:
