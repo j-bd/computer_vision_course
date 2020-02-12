@@ -44,9 +44,23 @@ def arguments_parser():
     args = vars(parser.parse_args())
     return args
 
+def initialisation(args):
+    '''Select detector and medium'''
+    detector = cv2.CascadeClassifier(args["cascade"])
+    model = load_model(args["model"])
+    # If a video path was not supplied, grab the reference to the webcam
+    if not args.get("video", False):
+        camera = cv2.VideoCapture(0)
+    # Otherwise, load the video
+    else:
+        camera = cv2.VideoCapture(args["video"])
+    return detector, model, camera
+
 def main():
     '''Launch main steps'''
     args = arguments_parser()
+
+    detector, model, camera = initialisation(args)
 
 
 if __name__ == "__main__":
