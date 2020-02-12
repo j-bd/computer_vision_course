@@ -44,13 +44,10 @@ def arguments_parser():
         "-d", "--dataset", required=True, help="path to input dataset"
     )
     parser.add_argument(
-        "-m", "--model", required=True, help="path to save 'file.hdf5' model"
+        "-o", "--output", required=True, help="directory to save model and plot"
     )
     parser.add_argument(
         "-tb", "--tboutput", required=True, help="path to TensorBoard directory"
-    )
-    parser.add_argument(
-        "-hy", "--history", required=True, help="path to save 'history.png' model"
     )
     args = vars(parser.parse_args())
     return args
@@ -93,9 +90,7 @@ def data_preparation(dataset, labels):
 
 def checkpoint_call(directory):
     '''Return a callback checkpoint configuration to save only the best model'''
-    fname = os.path.sep.join(
-        [directory, "weights.hdf5"]
-    )
+    fname = os.path.sep.join([directory, "weights.hdf5"])
     checkpoint = ModelCheckpoint(
         fname, monitor="val_loss", mode="min", save_best_only=True,
         verbose=1
@@ -112,7 +107,7 @@ def lenet_training(args, train_x, test_x, train_y, test_y, class_weight):
     model.summary()
 
     # Callbacks creation
-    checkpoint_save = checkpoint_call(args["model"])
+    checkpoint_save = checkpoint_call(args["output"])
     tensor_board = TensorBoard(
         log_dir=args["tboutput"], histogram_freq=1, write_graph=True,
         write_images=True
@@ -127,6 +122,46 @@ def lenet_training(args, train_x, test_x, train_y, test_y, class_weight):
     )
     return history, model
 
+def model_evaluation(model, test_x, test_y, label_names):
+    '''Display on terminal command the quality of model's predictions'''
+    print("[INFO] Evaluating network...")
+    predictions = model.predict(test_x, batch_size=64)
+    print(
+        classification_report(
+            test_y.argmax(axis=1), predictions.argmax(axis=1),
+            target_names=label_names
+        )
+    )
+
+def display_learning_evol(history_dic, directory):
+    '''Plot the training loss and accuracy'''
+    fname = os.path.sep.join([directory, "loss_accuracy_history.png"]
+    )
+    plt.style.use("ggplot")
+    plt.figure()
+    plt.plot(
+        np.arange(0, len(history_dic.history["loss"])),
+        history_dic.history["loss"], label="train_loss"
+    )
+    plt.plot(
+        np.arange(0, len(history_dic.history["val_loss"])),
+        history_dic.history["val_loss"], label="val_loss"
+    )
+    plt.plot(
+        np.arange(0, len(history_dic.history["accuracy"])),
+        history_dic.history["accuracy"], label="train_acc"
+    )
+    plt.plot(
+        np.arange(0, len(history_dic.history["val_accuracy"])),
+        history_dic.history["val_accuracy"], label="val_accuracy"
+    )
+    plt.title("Training Loss and Accuracy")
+    plt.xlabel("Epoch #")
+    plt.ylabel("Loss/Accuracy")
+    plt.legend()
+    plt.savefig(fname)
+
+
 def main():
     '''Launch main steps'''
     args = arguments_parser()
@@ -139,6 +174,10 @@ def main():
     history, model = lenet_training(
         args, train_x, test_x, train_y, test_y, class_weight
     )
+
+    model_evaluation(model, test_x, test_y, lab_name)
+
+    display_learning_evol(history, args["output"])
 
 
 if __name__ == "__main__":
