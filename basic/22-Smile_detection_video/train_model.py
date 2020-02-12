@@ -135,8 +135,7 @@ def model_evaluation(model, test_x, test_y, label_names):
 
 def display_learning_evol(history_dic, directory):
     '''Plot the training loss and accuracy'''
-    fname = os.path.sep.join([directory, "loss_accuracy_history.png"]
-    )
+    fname = os.path.sep.join([directory, "loss_accuracy_history.png"])
     plt.style.use("ggplot")
     plt.figure()
     plt.plot(
