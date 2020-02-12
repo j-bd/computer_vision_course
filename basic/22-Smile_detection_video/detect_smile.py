@@ -96,7 +96,7 @@ def detection(args, detector, model, camera):
 
             # Display the label and bounding box rectangle on the output frame
             cv2.putText(
-                frame_clone, label, (x_val, y_val - 10),
+                frame_clone, label, (x_val, y_val + h_val + 10),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 0, 255), 2
             )
             cv2.rectangle(
