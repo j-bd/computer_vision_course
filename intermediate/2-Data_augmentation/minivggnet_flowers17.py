@@ -17,10 +17,14 @@ from sklearn.preprocessing import LabelBinarizer
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
 from tensorflow.keras.preprocessing.image import img_to_array
+from tensorflow.keras.optimizers import SGD
 from tensorflow.keras import utils
 from tensorflow.keras.callbacks import TensorBoard
 from tensorflow.keras.callbacks import ModelCheckpoint
-from imutils import paths
+
+from data_tools import ImageToArrayPreprocessor, SimpleDatasetLoader
+from aspectawarepreprocessor import AspectAwarePreprocessor
+from minivggnet_tf import MiniVGGNet
 
 
 def arguments_parser():
@@ -52,29 +56,39 @@ def arguments_parser():
 
 def data_loader(data_directory):
     '''Load data and corresponding labels from disk'''
-    data = []
-    labels = []
+    print("[INFO] Loading images...")
+    # Grab the list of images that we’ll be describing, then extractthe class
+    # label names from the image paths
+    image_paths = list(imutils.paths.list_images(data_directory))
+    labels = [species.split(os.path.sep)[-2] for species in image_paths]
+    cl_labels = [str(x) for x in np.unique(labels)]
 
-    return data, labels
+    return image_paths, cl_labels
 
-def data_preparation(dataset, labels):
+def data_preparation(image_paths):
     '''Scaling and binarize data'''
-    dataset = np.array(dataset, dtype="float") / 255.0
-    labels = np.array(labels)
+
+    # Initialize the image preprocessors
+    aap = AspectAwarePreprocessor(64, 64)
+    iap = ImageToArrayPreprocessor()
+
+    # Load the dataset from disk then scale the raw pixel intensities to the
+    # range [0, 1]
+    sdl = SimpleDatasetLoader(preprocessors=[aap, iap])
+    (data, labels) = sdl.load(image_paths, verbose=80)
+    data = data.astype("float") / 255.0
+
+    # Partition the data into training and testing splits using 75% of the data
+    # for training and the remaining 25% for testing
+    (train_x, test_x, train_y, test_y) = train_test_split(
+        data, labels, test_size=0.25, random_state=42
+    )
 
     # Convert the labels from integers to vectors
-    label_enc = LabelEncoder()
-    labels = utils.to_categorical(label_enc.fit_transform(labels), 2)
+    train_y = LabelBinarizer().fit_transform(train_y)
+    test_y = LabelBinarizer().fit_transform(test_y)
 
-    # Account for skew in the labeled data -> unbalanced data
-    class_totals = labels.sum(axis=0)
-    class_weight = class_totals.max() / class_totals
-
-    (train_x, test_x, train_y, test_y) = train_test_split(
-        dataset, labels, test_size=0.20, stratify=labels, random_state=42
-    )
-    return train_x, test_x, train_y, test_y, class_weight, label_enc.classes_
-
+    return train_x, test_x, train_y, test_y
 
 def checkpoint_call(directory):
     '''Return a callback checkpoint configuration to save only the best model'''
@@ -152,11 +166,9 @@ def display_learning_evol(history_dic, directory):
 def main():
     '''Launch main steps'''
     args = arguments_parser()
-    dataset, labels = data_loader(args["dataset"])
+    image_paths, cl_labels = data_loader(args["dataset"])
 
-    train_x, test_x, train_y, test_y, class_weight, lab_name = data_preparation(
-        dataset, labels
-    )
+    train_x, test_x, train_y, test_y = data_preparation(image_paths)
 
     history, model = cnn_training(
         args, train_x, test_x, train_y, test_y, class_weight
