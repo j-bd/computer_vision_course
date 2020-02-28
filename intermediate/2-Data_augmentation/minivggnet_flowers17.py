@@ -9,16 +9,13 @@ Created on Thu Feb 27 17:52:34 2020
 import os
 import argparse
 
-import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 from imutils import paths
 from sklearn.preprocessing import LabelBinarizer
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
-from tensorflow.keras.preprocessing.image import img_to_array
 from tensorflow.keras.optimizers import SGD
-from tensorflow.keras import utils
 from tensorflow.keras.callbacks import TensorBoard
 from tensorflow.keras.callbacks import ModelCheckpoint
 
