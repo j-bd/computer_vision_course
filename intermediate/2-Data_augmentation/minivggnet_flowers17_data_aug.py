@@ -63,13 +63,47 @@ def data_loader(data_directory):
 
     return image_paths, cl_labels
 
+def data_preparation(image_paths):
+    '''Scaling and binarize data'''
+
+    # Initialize the image preprocessors
+    aap = AspectAwarePreprocessor(64, 64)
+    iap = ImageToArrayPreprocessor()
+
+    # Load the dataset from disk then scale the raw pixel intensities to the
+    # range [0, 1]
+    sdl = SimpleDatasetLoader(preprocessors=[aap, iap])
+    (data, labels) = sdl.load(image_paths, verbose=80)
+    data = data.astype("float") / 255.0
+
+    # Partition the data into training and testing splits using 75% of the data
+    # for training and the remaining 25% for testing
+    (train_x, test_x, train_y, test_y) = train_test_split(
+        data, labels, test_size=0.25, random_state=42
+    )
+
+    # Convert the labels from integers to vectors
+    train_y = LabelBinarizer().fit_transform(train_y)
+    test_y = LabelBinarizer().fit_transform(test_y)
+
+    # construct the image generator for data augmentation
+    img_augm_gene = ImageDataGenerator(
+        rotation_range=30, width_shift_range=0.1, height_shift_range=0.1,
+        shear_range=0.2, zoom_range=0.2, horizontal_flip=True,
+        fill_mode="nearest"
+    )
+
+    return train_x, test_x, train_y, test_y, img_augm_gene
+
 def main():
     '''Launch main steps'''
     args = arguments_parser()
 
     image_paths, cl_labels = data_loader(args["dataset"])
 
-
+    train_x, test_x, train_y, test_y, img_augm_gene = data_preparation(
+        image_paths
+    )
 
 
 if __name__ == "__main__":
