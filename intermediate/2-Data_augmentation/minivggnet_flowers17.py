@@ -10,9 +10,9 @@ import os
 import argparse
 
 import cv2
-import imutils
 import numpy as np
 import matplotlib.pyplot as plt
+from imutils import paths
 from sklearn.preprocessing import LabelBinarizer
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
@@ -59,7 +59,7 @@ def data_loader(data_directory):
     print("[INFO] Loading images...")
     # Grab the list of images that we’ll be describing, then extractthe class
     # label names from the image paths
-    image_paths = list(imutils.paths.list_images(data_directory))
+    image_paths = list(paths.list_images(data_directory))
     labels = [species.split(os.path.sep)[-2] for species in image_paths]
     cl_labels = [str(x) for x in np.unique(labels)]
 
@@ -99,12 +99,15 @@ def checkpoint_call(directory):
     )
     return checkpoint
 
-def cnn_training(args, train_x, test_x, train_y, test_y, class_weight):
+def cnn_training(args, train_x, test_x, train_y, test_y, cl_labels):
     '''Launch the lenet training'''
     print("[INFO] Compiling model...")
-    model = LeNet.build(width=28, height=28, depth=1, classes=2)
+    opt = SGD(lr=0.05)
+    model = MiniVGGNet.build(
+        width=64, height=64, depth=3, classes=len(cl_labels)
+    )
     model.compile(
-        loss="binary_crossentropy", optimizer="adam", metrics=["accuracy"]
+        loss="binary_crossentropy", optimizer=opt, metrics=["accuracy"]
     )
     model.summary()
 
@@ -119,15 +122,14 @@ def cnn_training(args, train_x, test_x, train_y, test_y, class_weight):
     print("[INFO] Training network...")
     history = model.fit(
         train_x, train_y, validation_data=(test_x, test_y),
-        class_weight=class_weight, batch_size=64, epochs=15,
-        callbacks=callbacks, verbose=1
+        batch_size=32, epochs=100, callbacks=callbacks, verbose=1
     )
     return history, model
 
 def model_evaluation(model, test_x, test_y, label_names):
     '''Display on terminal command the quality of model's predictions'''
     print("[INFO] Evaluating network...")
-    predictions = model.predict(test_x, batch_size=64)
+    predictions = model.predict(test_x, batch_size=32)
     print(
         classification_report(
             test_y.argmax(axis=1), predictions.argmax(axis=1),
@@ -171,10 +173,10 @@ def main():
     train_x, test_x, train_y, test_y = data_preparation(image_paths)
 
     history, model = cnn_training(
-        args, train_x, test_x, train_y, test_y, class_weight
+        args, train_x, test_x, train_y, test_y, cl_labels
     )
 
-    model_evaluation(model, test_x, test_y, lab_name)
+    model_evaluation(model, test_x, test_y, cl_labels)
 
     display_learning_evol(history, args["output"])
 
