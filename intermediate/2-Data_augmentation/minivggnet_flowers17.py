@@ -27,12 +27,12 @@ from minivggnet_tf import MiniVGGNet
 def arguments_parser():
     '''Retrieve user data command'''
     parser = argparse.ArgumentParser(
-        prog="",
-        usage='''%(prog)s []''',
+        prog="MiniVGGNet applied to Flowers17 dataset",
+        usage='''%(prog)s [without data augmentation]''',
         formatter_class=argparse.RawDescriptionHelpFormatter, description='''
         To lauch custom training execution:
         -------------------------------------
-        python3 .py
+        python3 minivggnet_flowers17.py
         --dataset "path/to/dataset/directory" --output "path/to/model/directory"
         --tboutput "path/to/directory"
 
@@ -97,14 +97,14 @@ def checkpoint_call(directory):
     return checkpoint
 
 def cnn_training(args, train_x, test_x, train_y, test_y, cl_labels):
-    '''Launch the lenet training'''
+    '''Launch the MiniVGGNet training'''
     print("[INFO] Compiling model...")
     opt = SGD(lr=0.05)
     model = MiniVGGNet.build(
         width=64, height=64, depth=3, classes=len(cl_labels)
     )
     model.compile(
-        loss="binary_crossentropy", optimizer=opt, metrics=["accuracy"]
+        loss="categorical_crossentropy", optimizer=opt, metrics=["accuracy"]
     )
     model.summary()
 
