@@ -11,6 +11,7 @@ import argparse
 
 import numpy as np
 import matplotlib.pyplot as plt
+import pandas as pd
 from imutils import paths
 from sklearn.preprocessing import LabelBinarizer
 from sklearn.model_selection import train_test_split
@@ -123,10 +124,20 @@ def cnn_training(args, train_x, test_x, train_y, test_y, cl_labels):
     )
     return history, model
 
-def model_evaluation(model, test_x, test_y, label_names):
+def model_evaluation(model, test_x, test_y, label_names, directory):
     '''Display on terminal command the quality of model's predictions'''
     print("[INFO] Evaluating network...")
     predictions = model.predict(test_x, batch_size=32)
+
+    report = classification_report(
+        test_y.argmax(axis=1), predictions.argmax(axis=1),
+        target_names=label_names, output_dict=True
+    )
+    dataframe = pd.DataFrame.from_dict(report, orient="index", )
+    dataframe.to_csv(
+        os.path.sep.join([directory, "classification_report.csv"]), index=True
+    )
+
     print(
         classification_report(
             test_y.argmax(axis=1), predictions.argmax(axis=1),
@@ -173,7 +184,7 @@ def main():
         args, train_x, test_x, train_y, test_y, cl_labels
     )
 
-    model_evaluation(model, test_x, test_y, cl_labels)
+    model_evaluation(model, test_x, test_y, cl_labels, args["output"])
 
     display_learning_evol(history, args["output"])
 
