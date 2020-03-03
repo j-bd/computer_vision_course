@@ -72,12 +72,61 @@ def data_loader(data_directory):
     lab_enc = LabelEncoder()
     labels = lab_enc.fit_transform(labels)
 
-    return image_paths, labels
+    return image_paths, labels, lab_enc.classes_
+
+def tenp(image_paths, args, labels, lab_classes):
+    # Load the VGG16 network without he final fully-connected layers
+    print("[INFO] loading network...")
+    model = VGG16(weights="imagenet", include_top=False)
+
+    # Initialize the HDF5 dataset writer, then store the class label names in
+    # the dataset
+    dataset = HDF5DatasetWriter(
+        (len(image_paths), 512 * 7 * 7), args["output"], dataKey="features",
+        bufSize=args["buffer_size"]
+    )
+    dataset.store_class_labels(lab_classes)
+
+    # Initialize the progress bar
+    widgets = [
+        "Extracting Features: ", progressbar.Percentage(), " ",
+        progressbar.Bar(), " ", progressbar.ETA()
+    ]
+    pbar = progressbar.ProgressBar(
+        maxval=len(image_paths), widgets=widgets
+    ).start()
+
+    # Loop over the images in patches
+    batch_s = args["batch-size"]
+    for i in np.arange(0, len(image_paths), batch_s):
+        # Extract the batch of images and labels, then initialize the list of
+        # actual images that will be passed through the network for feature
+        # extraction
+        batch_paths = image_paths[i:i + batch_s]
+        batch_labels = labels[i:i + batch_s]
+        batch_images = []
+
+    # Loop over the images and labels in the current batch
+    for (j, image_path) in enumerate(batch_paths):
+        # load the input image using the Keras helper utility
+        # while ensuring the image is resized to 224x224 pixels
+        image = load_img(image_path, target_size=(224, 224))
+        image = img_to_array(image)
+
+        # Preprocess the image by (1) expanding the dimensions and (2)
+        # subtracting the mean RGB pixel intensity from the ImageNet dataset
+        image = np.expand_dims(image, axis=0)
+        image = imagenet_utils.preprocess_input(image)
+
+        # Add the image to the batch
+        batch_images.append(image)
+
 
 def main():
     '''Launch main steps'''
     args = arguments_parser()
-    image_paths, labels = data_loader(args["dataset"])
+    image_paths, labels, lab_classes = data_loader(args["dataset"])
+    tenp(image_paths, args, labels, lab_classes)
 
 
 if __name__ == "__main__":
