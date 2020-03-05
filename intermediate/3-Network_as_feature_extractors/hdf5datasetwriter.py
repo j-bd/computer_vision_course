@@ -34,7 +34,7 @@ class HDF5DatasetWriter:
 
         # Store the buffer size, then initialize the buffer itself along with
         # the index into the datasets. "buf_size" controls the size of our in
-        #-memory buffer. Once we reach it, we’ll flush the buffer to the HDF5
+        # memory buffer. Once we reach it, we’ll flush the buffer to the HDF5
         # dataset
         self.buf_size = buf_size
         self.buffer = {"data": [], "labels": []}
