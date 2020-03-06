@@ -76,7 +76,7 @@ def data_loader(data_directory):
 
 def tenp(image_paths, args, labels, lab_classes):
     # Load the VGG16 network without he final fully-connected layers
-    print("[INFO] loading network...")
+    print("[INFO] Loading network...")
     model = VGG16(weights="imagenet", include_top=False)
 
     # Initialize the HDF5 dataset writer, then store the class label names in
