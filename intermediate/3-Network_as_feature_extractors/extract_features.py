@@ -17,9 +17,10 @@ from tensorflow.keras.preprocessing.image import img_to_array
 from tensorflow.keras.preprocessing.image import load_img
 from sklearn.preprocessing import LabelEncoder
 import progressbar
+from imutils import paths
 
 from hdf5datasetwriter import HDF5DatasetWriter
-from imutils import paths
+
 
 
 def arguments_parser():
@@ -83,8 +84,8 @@ def features_extr(image_paths, args, labels, lab_classes):
     # Initialize the HDF5 dataset writer, then store the class label names in
     # the dataset
     dataset = HDF5DatasetWriter(
-        (len(image_paths), 512 * 7 * 7), args["output"], dataKey="features",
-        bufSize=args["buffer_size"]
+        (len(image_paths), 512 * 7 * 7), args["output"], data_key="features",
+        buf_size=args["buffer_size"]
     )
     dataset.store_class_labels(lab_classes)
 
