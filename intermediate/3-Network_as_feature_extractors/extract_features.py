@@ -74,7 +74,8 @@ def data_loader(data_directory):
 
     return image_paths, labels, lab_enc.classes_
 
-def tenp(image_paths, args, labels, lab_classes):
+def features_extr(image_paths, args, labels, lab_classes):
+    '''Extract features from VGG16 network'''
     # Load the VGG16 network without he final fully-connected layers
     print("[INFO] Loading network...")
     model = VGG16(weights="imagenet", include_top=False)
@@ -106,27 +107,43 @@ def tenp(image_paths, args, labels, lab_classes):
         batch_labels = labels[i:i + batch_s]
         batch_images = []
 
-    # Loop over the images and labels in the current batch
-    for (j, image_path) in enumerate(batch_paths):
-        # load the input image using the Keras helper utility
-        # while ensuring the image is resized to 224x224 pixels
-        image = load_img(image_path, target_size=(224, 224))
-        image = img_to_array(image)
+        # Loop over the images and labels in the current batch
+        for (j, image_path) in enumerate(batch_paths):
+            # load the input image using the Keras helper utility
+            # while ensuring the image is resized to 224x224 pixels
+            image = load_img(image_path, target_size=(224, 224))
+            image = img_to_array(image)
 
-        # Preprocess the image by (1) expanding the dimensions and (2)
-        # subtracting the mean RGB pixel intensity from the ImageNet dataset
-        image = np.expand_dims(image, axis=0)
-        image = imagenet_utils.preprocess_input(image)
+            # Preprocess the image by (1) expanding the dimensions and (2)
+            # subtracting the mean RGB pixel intensity from the ImageNet dataset
+            image = np.expand_dims(image, axis=0)
+            image = imagenet_utils.preprocess_input(image)
 
-        # Add the image to the batch
-        batch_images.append(image)
+            # Add the image to the batch
+            batch_images.append(image)
 
+        # To obtain our feature vectors pass the images through the network and use the outputs as
+        # our actual features
+        batch_images = np.vstack(batch_images)
+        features = model.predict(batch_images, batch_size=batch_s)
+
+        # reshape the features so that each image is represented by
+        # a flattened feature vector of the ‘MaxPooling2D‘ outputs
+        features = features.reshape((features.shape[0], 512 * 7 * 7))
+
+        # add the features and labels to our HDF5 dataset
+        dataset.add(features, batch_labels)
+        pbar.update(i)
+
+    # close the dataset
+    dataset.close()
+    pbar.finish()
 
 def main():
     '''Launch main steps'''
     args = arguments_parser()
     image_paths, labels, lab_classes = data_loader(args["dataset"])
-    tenp(image_paths, args, labels, lab_classes)
+    features_extr(image_paths, args, labels, lab_classes)
 
 
 if __name__ == "__main__":
