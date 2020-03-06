@@ -47,9 +47,19 @@ def arguments_parser():
     args = vars(parser.parse_args())
     return args
 
+def database_loader(db_path):
+    '''Load and return the HDF5 database and the value of train data size'''
+    # open the HDF5 database for reading then determine the index of
+    # the training and testing split, provided that this data was
+    # already shuffled *prior* to writing it to disk
+    h5_db = h5py.File(db_path, "r")
+    train_size = int(h5_db["labels"].shape[0] * 0.75)
+    return h5_db, train_size
+
 def main():
     '''Launch main steps'''
     args = arguments_parser()
+    h5_db, train_size = database_loader(args["db"])
 
 
 if __name__ == "__main__":
