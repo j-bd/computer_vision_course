@@ -46,11 +46,11 @@ def arguments_parser():
         "-o", "--output", required=True, help="directory to save model and plot"
     )
     parser.add_argument(
-        "-b", "--batch-size", type=int, default=32,
+        "-b", "--batch_size", type=int, default=32,
         help="batch size of images to be passed through network"
     )
     parser.add_argument(
-        "-s", "--buffer-size", type=int, default=1000,
+        "-s", "--buffer_size", type=int, default=1000,
         help="size of feature extraction buffer"
     )
     parser.add_argument(
@@ -99,7 +99,7 @@ def features_extr(image_paths, args, labels, lab_classes):
     ).start()
 
     # Loop over the images in patches
-    batch_s = args["batch-size"]
+    batch_s = args["batch_size"]
     for i in np.arange(0, len(image_paths), batch_s):
         # Extract the batch of images and labels, then initialize the list of
         # actual images that will be passed through the network for feature
