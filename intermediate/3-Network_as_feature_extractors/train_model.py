@@ -9,6 +9,7 @@ Created on Fri Mar  6 17:20:48 2020
 import os
 import argparse
 import pickle
+from io import StringIO
 
 import h5py
 import pandas as pd
@@ -21,8 +22,8 @@ from sklearn.metrics import classification_report
 def arguments_parser():
     '''Retrieve user data command'''
     parser = argparse.ArgumentParser(
-        prog="",
-        usage='''%(prog)s []''',
+        prog="Feature extractors",
+        usage='''%(prog)s [Training a classifier]''',
         formatter_class=argparse.RawDescriptionHelpFormatter, description='''
         To lauch custom training execution:
         -------------------------------------
@@ -37,17 +38,11 @@ def arguments_parser():
         "-db", "--database", required=True, help="path HDF5 database"
     )
     parser.add_argument(
-        "-m", "--model", required=True, help="path to output model"
-    )
-    parser.add_argument(
         "-j", "--jobs", type=int, default=-1,
         help="numbers of jobs to run when tuning hyperparameters"
     )
     parser.add_argument(
         "-o", "--output", required=True, help="directory to save model and plot"
-    )
-    parser.add_argument(
-        "-tb", "--tboutput", required=True, help="path to TensorBoard directory"
     )
     args = vars(parser.parse_args())
     return args
@@ -81,17 +76,27 @@ def log_reg_eval(model, h5_db, train_size, directory):
         h5_db["labels"][train_size:], preds, target_names=h5_db["label_names"]
     )
     print(report)
-    dataframe = pd.DataFrame.from_dict(report)
+    dataframe = pd.read_csv(StringIO(report))
     dataframe.to_csv(
         os.path.sep.join([directory, "classification_report.csv"]), index=False
     )
 
+def serialize(path, model):
+    '''Serialize the model to disk'''
+    print("[INFO] Saving model...")
+    file = open(os.path.sep.join([path, "model.cpickle"]), "wb")
+    file.write(pickle.dumps(model.best_estimator_))
+    file.close()
+
 def main():
     '''Launch main steps'''
     args = arguments_parser()
-    h5_db, train_size = database_loader(args["db"])
+    h5_db, train_size = database_loader(args["database"])
     model = log_reg_training(h5_db, train_size, args["jobs"])
     log_reg_eval(model, h5_db, train_size, args["output"])
+    serialize(args["output"], model)
+
+    h5_db.close()
 
 
 if __name__ == "__main__":
