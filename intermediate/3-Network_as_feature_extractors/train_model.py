@@ -49,17 +49,17 @@ def arguments_parser():
 
 def database_loader(db_path):
     '''Load and return the HDF5 database and the value of train data size'''
-    # open the HDF5 database for reading then determine the index of
-    # the training and testing split, provided that this data was
-    # already shuffled *prior* to writing it to disk
+    # Open the HDF5 database for reading then determine the index of the
+    # training and testing split, provided that this data was already shuffled
+    # *prior* to writing it to disk
     h5_db = h5py.File(db_path, "r")
     train_size = int(h5_db["labels"].shape[0] * 0.75)
     return h5_db, train_size
 
 def log_reg_training(h5_db, train_size, job_numbers):
     '''Train Logistic Regression'''
-    # Define the set of parameters that we want to tune then start a
-    # grid search where we evaluate our model for each value of C
+    # Define the set of parameters that we want to tune then start a grid search
+    # where we evaluate our model for each value of C
     print("[INFO] Tuning hyperparameters...")
     params = {"C": [0.1, 1.0, 10.0, 100.0, 1000.0, 10000.0]}
     model = GridSearchCV(LogisticRegression(), params, cv=3, n_jobs=job_numbers)
